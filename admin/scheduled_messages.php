@@ -292,88 +292,30 @@ include('../includes/header.php');
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-            <div class="position-sticky pt-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="whatsapp_accounts.php">
-                            <i class="bi bi-person-circle"></i> WhatsApp Accounts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="whatsapp_groups.php">
-                            <i class="bi bi-people-fill"></i> WhatsApp Groups
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="message_templates.php">
-                            <i class="bi bi-file-earmark-text"></i> Message Templates
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="promotions.php">
-                            <i class="bi bi-megaphone"></i> Promotions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="footers.php">
-                            <i class="bi bi-list-ul"></i> Footers
-                        </a>
-                    </li>
-					<li class="nav-item">
-                        <a class="nav-link" href="copy_content.php">
-                            <i class="bi bi-clipboard"></i> Copy Content
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="scheduled_messages.php">
-                            <i class="bi bi-calendar-event"></i> Scheduled Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="message_history.php">
-                            <i class="bi bi-clock-history"></i> Message History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="instant_message.php">
-                            <i class="bi bi-send"></i> Instant Message
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="group_settings.php">
-                            <i class="bi bi-gear"></i> Group Settings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="api_settings.php">
-                            <i class="bi bi-key"></i> API Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <?php include('../includes/sidebar.php'); ?>
+        
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-				<h1 class="h2">Scheduled Messages</h1>
-				<div>
-					<button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
-						<i class="bi bi-trash"></i>
-					</button>
-					<button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#multiTemplateScheduleModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
-						<i class="bi bi-collection-play"></i> Bulk Schedule
-					</button>
-					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleMessageModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
-						<i class="bi bi-calendar-plus"></i> Single Schedule
-					</button>
-				</div>
-			</div>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h1 class="h2 mb-0">Scheduled Messages</h1>
+                </div>
+                
+                <div class="d-flex gap-2 flex-wrap justify-content-start justify-content-md-end">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#multiTemplateScheduleModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
+                        <i class="bi bi-collection-play"></i> <span class="d-none d-sm-inline">Bulk Schedule</span>
+                    </button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleMessageModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
+                        <i class="bi bi-calendar-plus"></i> <span class="d-none d-sm-inline">Single Schedule</span>
+                    </button>
+                </div>
+            </div>
             <?php if (mysqli_num_rows($accounts_result) == 0): ?>
                 <div class="alert alert-warning">
                     <p class="mb-0">You need to add a WhatsApp account first before scheduling messages. <a href="whatsapp_accounts.php" class="alert-link">Add WhatsApp Account</a></p>

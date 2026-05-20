@@ -10,79 +10,14 @@ include('../includes/header.php');
 
 <div class="container-fluid">
     <div class="row">
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-            <div class="position-sticky pt-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="dashboard.php">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="whatsapp_accounts.php">
-                            <i class="bi bi-person-circle"></i> WhatsApp Accounts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="whatsapp_groups.php">
-                            <i class="bi bi-people-fill"></i> WhatsApp Groups
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="message_templates.php">
-                            <i class="bi bi-file-earmark-text"></i> Message Templates
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="promotions.php">
-                            <i class="bi bi-megaphone"></i> Promotions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="footers.php">
-                            <i class="bi bi-list-ul"></i> Footers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="copy_content.php">
-                            <i class="bi bi-clipboard"></i> Copy Content
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="scheduled_messages.php">
-                            <i class="bi bi-calendar-event"></i> Scheduled Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="message_history.php">
-                            <i class="bi bi-clock-history"></i> Message History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="instant_message.php">
-                            <i class="bi bi-send"></i> Instant Message
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="group_settings.php">
-                            <i class="bi bi-gear"></i> Group Settings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="api_settings.php">
-                            <i class="bi bi-key"></i> API Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+        <?php include('../includes/sidebar.php'); ?>
         
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
             
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                        <i class="bi bi-list"></i> Menu
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
                     </button>
                     <h1 class="h2 mb-0">Dashboard</h1>
                 </div>

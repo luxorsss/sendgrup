@@ -9,6 +9,18 @@ $current_time = date('H:i:00');
 $now = date('Y-m-d H:i:s');
 
 // =========================================================================
+// ## FUNGSI SPINTAX UNTUK VARIASI TEKS (ANTI-SPAM) ##
+// =========================================================================
+function parse_spintax($text) {
+    return preg_replace_callback('/\{(((?>[^\{\}]+)|(?R))*)\}/x', function ($match) {
+        $text = parse_spintax($match[1]);
+        $parts = explode('|', $text);
+        return $parts[array_rand($parts)];
+    }, $text);
+}
+// =========================================================================
+
+// =========================================================================
 // ## QUERY YANG SUDAH DIPERBAIKI ##
 // =========================================================================
 $query = "SELECT 
@@ -92,7 +104,7 @@ if (mysqli_num_rows($result) > 0) {
             $promotions_content_text = getGroupPromotions($conn, $group_id);
             $footer_content_text = getGroupFooter($conn, $group_id);
             
-            $full_message = $message_content;
+            $full_message = parse_spintax($full_message);
             if (!empty($footer_content_text)) {
                 $full_message .= "\n\n" . $footer_content_text;
             }
@@ -117,7 +129,7 @@ if (mysqli_num_rows($result) > 0) {
                 mysqli_stmt_bind_param($stmt_history, "iiissssis", $whatsapp_number_id, $group_id, $template_id, $message_content, $image_url, $promotions_content_text, $footer_content_text, $scheduled_id, $now);
                 mysqli_stmt_execute($stmt_history);
             }
-            sleep(1);
+            sleep(rand(5, 15));
         }
         
         // Update status berdasarkan hasil pengiriman

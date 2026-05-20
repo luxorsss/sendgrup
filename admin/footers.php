@@ -187,72 +187,7 @@ include('../includes/header.php');
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-            <div class="position-sticky pt-3">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="dashboard.php">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="whatsapp_accounts.php">
-                            <i class="bi bi-person-circle"></i> WhatsApp Accounts
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="whatsapp_groups.php">
-                            <i class="bi bi-people-fill"></i> WhatsApp Groups
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="message_templates.php">
-                            <i class="bi bi-file-earmark-text"></i> Message Templates
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="promotions.php">
-                            <i class="bi bi-megaphone"></i> Promotions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="footers.php">
-                            <i class="bi bi-list-ul"></i> Footers
-                        </a>
-                    </li>
-					<li class="nav-item">
-                        <a class="nav-link" href="copy_content.php">
-                            <i class="bi bi-clipboard"></i> Copy Content
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="scheduled_messages.php">
-                            <i class="bi bi-calendar-event"></i> Scheduled Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="message_history.php">
-                            <i class="bi bi-clock-history"></i> Message History
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="instant_message.php">
-                            <i class="bi bi-send"></i> Instant Message
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="group_settings.php">
-                            <i class="bi bi-gear"></i> Group Settings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="api_settings.php">
-                            <i class="bi bi-key"></i> API Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
+        <?php include('../includes/sidebar.php'); ?>
         
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
