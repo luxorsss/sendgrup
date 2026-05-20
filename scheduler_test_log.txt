@@ -1,0 +1,46 @@
+=== Scheduler Test Started at: 2025-04-13 14:40:44 ===
+Running test: all
+
+--- Testing Database Connection ---
+✅ Database connection successful!
+✅ Table 'scheduled_messages' exists.
+   - Contains 1 records
+✅ Table 'scheduled_message_groups' exists.
+   - Contains 2 records
+✅ Table 'message_templates' exists.
+   - Contains 1 records
+✅ Table 'whatsapp_groups' exists.
+   - Contains 4 records
+✅ Table 'whatsapp_numbers' exists.
+   - Contains 1 records
+✅ Table 'message_history' exists.
+   - Contains 15 records
+
+--- Testing Scheduler Query ---
+Current date: 2025-04-13, Current time: 14:40:00
+✅ Query executed successfully.
+   - Found 0 scheduled messages to process
+   - Total scheduled messages in database: 1
+   - Status breakdown:
+     * pending: 1
+   - Scheduled for today: 1
+   - Scheduled for now or earlier: 0
+   - Pending and scheduled for now or earlier: 0
+   - With active WhatsApp number: 0
+
+--- Testing Message Sending ---
+✅ Found active WhatsApp account: Din
+✅ Found WhatsApp group: ESK LK
+Testing message sending to group...
+API Response: {"code":200,"messages":[{"id":"4f289d9e-b7fe-40ac-9681-cc38734d63f0","type":"text","to":"120363314573432814@g.us","recipient_type":"group","tag":"c030ce60"}],"http_code":200,"raw_response":"{\"code\":200,\"messages\":[{\"id\":\"4f289d9e-b7fe-40ac-9681-cc38734d63f0\",\"type\":\"text\",\"to\":\"120363314573432814@g.us\",\"recipient_type\":\"group\",\"tag\":\"c030ce60\"}]}"}
+✅ Test message sent successfully!
+
+=== Test Summary ===
+Tests run: 3
+Tests passed: 3
+Tests failed: 0
+
+✅ ALL TESTS PASSED! The scheduler system appears to be working correctly.
+If messages still aren't sending, check that the cron job is configured correctly.
+=== Scheduler Test Finished at: 2025-04-13 14:40:45 ===
+

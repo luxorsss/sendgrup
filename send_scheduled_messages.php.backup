@@ -1,0 +1,155 @@
+<?php
+// This script should be run via cron job every minute
+// Example: * * * * * php /path/to/send_scheduled_messages.php > /dev/null 2>&1
+
+require_once(dirname(__FILE__) . '/config/db_connect.php');
+require_once(dirname(__FILE__) . '/includes/functions.php');
+
+// Set execution time to unlimited for large batches
+set_time_limit(0);
+
+// Get current time
+$current_date = date('Y-m-d');
+$current_time = date('H:i:00'); // Round to minutes
+$now = date('Y-m-d H:i:s');
+
+// Get scheduled messages that are due to be sent
+$query = "SELECT sm.id, sm.template_id, sm.schedule_date, sm.schedule_time,
+                 mt.message_content, mt.image_url, mt.whatsapp_number_id,
+                 wn.api_key, wn.api_url
+          FROM scheduled_messages sm
+          JOIN message_templates mt ON sm.template_id = mt.id
+          JOIN whatsapp_numbers wn ON mt.whatsapp_number_id = wn.id
+          WHERE sm.schedule_date = '$current_date' 
+          AND sm.schedule_time <= '$current_time' 
+          AND sm.status = 'pending'
+          AND wn.active = 1
+          LIMIT 5"; // Process 5 scheduled messages at a time
+
+$result = mysqli_query($conn, $query);
+
+if (mysqli_num_rows($result) > 0) {
+    // Process each scheduled message
+    while ($row = mysqli_fetch_assoc($result)) {
+        $scheduled_id = $row['id'];
+        $api_key = $row['api_key'];
+        $api_url = $row['api_url'];
+        $whatsapp_number_id = $row['whatsapp_number_id'];
+        $message_content = $row['message_content'];
+        $image_url = $row['image_url'];
+        
+        // Get groups for this scheduled message
+        $groups_query = "SELECT wg.id, wg.group_wa_id, wg.group_name
+                        FROM scheduled_message_groups smg 
+                        JOIN whatsapp_groups wg ON smg.group_id = wg.id 
+                        WHERE smg.scheduled_message_id = $scheduled_id";
+        $groups_result = mysqli_query($conn, $groups_query);
+        
+        $success_count = 0;
+        $fail_count = 0;
+        
+        // Process each group for this scheduled message
+        while ($group = mysqli_fetch_assoc($groups_result)) {
+            $group_id = $group['id'];
+            $group_wa_id = $group['group_wa_id'];
+            
+            // Get promotions for this group
+            $promotions_query = "SELECT p.promotion_content 
+                                FROM group_promotions gp 
+                                JOIN promotions p ON gp.promotion_id = p.id 
+                                WHERE gp.group_id = $group_id AND p.active = 1
+                                ORDER BY gp.display_order ASC";
+            $promotions_result = mysqli_query($conn, $promotions_query);
+            
+            $promotions_content = [];
+            while ($promo = mysqli_fetch_assoc($promotions_result)) {
+                $promotions_content[] = $promo['promotion_content'];
+            }
+            
+            // Get footer for this group
+            $footer_query = "SELECT f.footer_content 
+                            FROM group_settings gs 
+                            JOIN footers f ON gs.footer_id = f.id AND f.active = 1
+                            WHERE gs.group_id = $group_id";
+            $footer_result = mysqli_query($conn, $footer_query);
+            $footer_content = null;
+            if ($footer_row = mysqli_fetch_assoc($footer_result)) {
+                $footer_content = $footer_row['footer_content'];
+            }
+            
+            // Construct the full message with promotion and footer if available
+            $full_message = $message_content;
+            
+			// Add footer if available
+            if (!empty($footer_content)) {
+                $full_message .= "\n\n" . $footer_content;
+            }
+			
+            // Add promotions if available
+            if (!empty($promotions_content)) {
+                $full_message .= "\n\n" . implode("\n\n", $promotions_content);
+            }
+            
+            // Try to send the message
+            $response = send_whatsapp_message($api_url, $api_key, $group_wa_id, $full_message, $image_url);
+            
+            // Update the status based on the response
+            if (isset($response['error'])) {
+                // Failed to send
+                $fail_count++;
+                $error_message = mysqli_real_escape_string($conn, substr($response['error'], 0, 255));
+                
+                // Add to message history
+                $history_query = "INSERT INTO message_history 
+                                (whatsapp_number_id, group_id, template_id, message_content, image_url, 
+                                promotion_content, footer_content, status, error_message, scheduled_id, is_instant, sent_at) 
+                                VALUES 
+                                ($whatsapp_number_id, $group_id, {$row['template_id']}, 
+                                '" . mysqli_real_escape_string($conn, $full_message) . "', 
+                                " . ($image_url ? "'" . mysqli_real_escape_string($conn, $image_url) . "'" : "NULL") . ", 
+                                " . (!empty($promotions_content) ? "'" . mysqli_real_escape_string($conn, implode("\n\n", $promotions_content)) . "'" : "NULL") . ", 
+                                " . ($footer_content ? "'" . mysqli_real_escape_string($conn, $footer_content) . "'" : "NULL") . ", 
+                                'failed', '$error_message', $scheduled_id, 0, '$now')";
+                mysqli_query($conn, $history_query);
+            } else {
+                // Message sent successfully
+                $success_count++;
+                
+                // Add to message history
+                $history_query = "INSERT INTO message_history 
+                                (whatsapp_number_id, group_id, template_id, message_content, image_url, 
+                                promotion_content, footer_content, status, scheduled_id, is_instant, sent_at) 
+                                VALUES 
+                                ($whatsapp_number_id, $group_id, {$row['template_id']}, 
+                                '" . mysqli_real_escape_string($conn, $full_message) . "', 
+                                " . ($image_url ? "'" . mysqli_real_escape_string($conn, $image_url) . "'" : "NULL") . ", 
+                                " . (!empty($promotions_content) ? "'" . mysqli_real_escape_string($conn, implode("\n\n", $promotions_content)) . "'" : "NULL") . ", 
+                                " . ($footer_content ? "'" . mysqli_real_escape_string($conn, $footer_content) . "'" : "NULL") . ", 
+                                'sent', $scheduled_id, 0, '$now')";
+                mysqli_query($conn, $history_query);
+            }
+            
+            // Add a small delay to prevent API rate limiting
+            sleep(1);
+        }
+        
+        // Update the scheduled message status based on the overall result
+        if ($success_count > 0 && $fail_count == 0) {
+            // All messages sent successfully
+            $update_query = "UPDATE scheduled_messages SET status = 'sent' WHERE id = $scheduled_id";
+        } elseif ($success_count == 0 && $fail_count > 0) {
+            // All messages failed
+            $update_query = "UPDATE scheduled_messages SET status = 'failed' WHERE id = $scheduled_id";
+        } else {
+            // Mixed results
+            $update_query = "UPDATE scheduled_messages SET status = 'partial' WHERE id = $scheduled_id";
+        }
+        mysqli_query($conn, $update_query);
+    }
+}
+
+// Close database connection
+mysqli_close($conn);
+
+echo "Scheduled messages processed at " . date('Y-m-d H:i:s');
+?>
