@@ -83,25 +83,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['manage_list'])) {
     exit;
 }
 
-// 5. Tandai Riwayat Manual
+// 5. Tandai Riwayat Manual (DIPERBARUI JADI SISTEM SYNC)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['mark_manual_log'])) {
     $list_id = clean_input($_POST["list_id"]);
     $group_id = clean_input($_POST["group_id"]);
     $template_ids = isset($_POST["template_ids"]) ? $_POST["template_ids"] : [];
     
-    if(empty($group_id) || empty($template_ids)) {
-        set_flash_message("warning", "Grup dan minimal 1 template harus dipilih.");
+    if(empty($group_id)) {
+        set_flash_message("warning", "Grup tujuan harus dipilih.");
     } else {
+        // Hapus semua log lama untuk grup ini di kelompok ini
+        mysqli_query($conn, "DELETE FROM automation_logs WHERE automation_list_id=$list_id AND group_id=$group_id");
+        
         $success_count = 0;
-        foreach ($template_ids as $tid) {
-            $tid = clean_input($tid);
-            $cek = mysqli_query($conn, "SELECT id FROM automation_logs WHERE automation_list_id=$list_id AND group_id=$group_id AND template_id=$tid");
-            if(mysqli_num_rows($cek) == 0) {
+        // Jika ada yang dicentang, masukkan ulang ke database
+        if(!empty($template_ids)) {
+            foreach ($template_ids as $tid) {
+                $tid = clean_input($tid);
                 mysqli_query($conn, "INSERT INTO automation_logs (automation_list_id, group_id, template_id) VALUES ($list_id, $group_id, $tid)");
                 $success_count++;
             }
         }
-        set_flash_message("success", "$success_count template berhasil ditandai sebagai sudah terkirim ke grup tersebut.");
+        
+        set_flash_message("success", "Riwayat grup berhasil diperbarui! $success_count pesan ditandai.");
     }
     header("Location: automations.php");
     exit;
@@ -126,7 +130,6 @@ $all_groups_query = "SELECT wg.id, wg.group_name, wn.account_name
                      WHERE wn.user_id = $user_id ORDER BY wn.account_name, wg.group_name";
 $all_groups_result = mysqli_query($conn, $all_groups_query);
 
-// STRUKTUR BARU: Mengelompokkan Grup berdasarkan Akun WhatsApp
 $groups_by_account = [];
 while($g = mysqli_fetch_assoc($all_groups_result)) {
     $acc = $g['account_name'];
@@ -143,6 +146,26 @@ while($row = mysqli_fetch_assoc($lists_result)) {
     $automation_lists_data[] = $row;
 }
 
+// ==========================================
+// AMBIL DATA LOGS UNTUK JAVASCRIPT (PRE-CHECK)
+// ==========================================
+$all_logs_query = "
+    SELECT al.automation_list_id, al.group_id, al.template_id 
+    FROM automation_logs al
+    JOIN automation_lists list ON al.automation_list_id = list.id
+    WHERE list.user_id = $user_id
+";
+$all_logs_result = mysqli_query($conn, $all_logs_query);
+$logs_data = [];
+while($log = mysqli_fetch_assoc($all_logs_result)) {
+    // Membuat kunci unik misal: "ListID_GroupID" -> [TemplateID1, TemplateID2]
+    $key = $log['automation_list_id'] . '_' . $log['group_id'];
+    if(!isset($logs_data[$key])) {
+        $logs_data[$key] = [];
+    }
+    $logs_data[$key][] = $log['template_id'];
+}
+
 include('../includes/header.php');
 ?>
 
@@ -150,13 +173,13 @@ include('../includes/header.php');
     <div class="row">
         <?php include('../includes/sidebar.php'); ?>
         
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">            
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
                 <div class="d-flex align-items-center mb-2 mb-md-0">
                     <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
                         <i class="bi bi-list"></i>
                     </button>
-                    <h1 class="h2 mb-0">Automations</h1>
+                    <h1 class="h2 mb-0">Automations (Pesan Berantai)</h1>
                 </div>
                 
                 <div class="d-flex gap-2 flex-wrap justify-content-start justify-content-md-end">
@@ -165,7 +188,7 @@ include('../includes/header.php');
                     </button>
                 </div>
             </div>
-
+            
             <?php display_flash_message(); ?>
             
             <div class="card">
@@ -179,7 +202,7 @@ include('../includes/header.php');
                                         <th>Total Grup</th>
                                         <th>Jadwal Pengiriman</th>
                                         <th>Status</th>
-                                        <th width="320">Aksi</th>
+                                        <th width="280">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -209,20 +232,20 @@ include('../includes/header.php');
                                                     <input type="hidden" name="id" value="<?php echo $list_id; ?>">
                                                     <input type="hidden" name="current_status" value="<?php echo $row['is_active']; ?>">
                                                     <?php if ($row['is_active'] == 1): ?>
-                                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-success rounded-pill"><i class="bi bi-check-circle"></i> ON</button>
+                                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-success rounded-pill" title="Matikan"><i class="bi bi-check-circle"></i> ON</button>
                                                     <?php else: ?>
-                                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-secondary rounded-pill"><i class="bi bi-dash-circle"></i> OFF</button>
+                                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-secondary rounded-pill" title="Hidupkan"><i class="bi bi-dash-circle"></i> OFF</button>
                                                     <?php endif; ?>
                                                 </form>
                                             </td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-warning text-dark" data-bs-toggle="modal" data-bs-target="#manualLogModal_<?php echo $list_id; ?>">
-                                                    <i class="bi bi-check2-all"></i> Tandai
+                                                <button type="button" class="btn btn-sm btn-warning text-dark" data-bs-toggle="modal" data-bs-target="#manualLogModal_<?php echo $list_id; ?>" title="Tandai Riwayat">
+                                                    <i class="bi bi-check2-all"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#manageModal_<?php echo $list_id; ?>">
+                                                <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#manageModal_<?php echo $list_id; ?>" title="Kelola">
                                                     <i class="bi bi-gear"></i> Kelola
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_<?php echo $list_id; ?>">
+                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_<?php echo $list_id; ?>" title="Hapus">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </td>
@@ -265,12 +288,10 @@ include('../includes/header.php');
     </div>
 </div>
 
-
 <?php 
 foreach($automation_lists_data as $row): 
     $list_id = $row['id'];
     
-    // Ambil data schedules lama
     $sch_res = mysqli_query($conn, "SELECT send_day, send_time FROM automation_schedules WHERE automation_list_id = $list_id");
     $raw_days = [];
     $send_time = '';
@@ -279,18 +300,15 @@ foreach($automation_lists_data as $row):
         $send_time = date('H:i', strtotime($sch['send_time']));
     }
     
-    // Ambil ID grup tercentang
     $sel_g_res = mysqli_query($conn, "SELECT group_id FROM automation_groups WHERE automation_list_id = $list_id");
     $selected_groups = [];
     while($sg = mysqli_fetch_assoc($sel_g_res)) {
         $selected_groups[] = $sg['group_id'];
     }
 
-    // Ambil Grup khusus yang masuk list ini (Untuk Modal Tandai)
     $list_groups_query = "SELECT wg.id, wg.group_name, wn.account_name FROM automation_groups ag JOIN whatsapp_groups wg ON ag.group_id = wg.id JOIN whatsapp_numbers wn ON wg.whatsapp_number_id = wn.id WHERE ag.automation_list_id = $list_id ORDER BY wn.account_name, wg.group_name";
     $list_groups_res = mysqli_query($conn, $list_groups_query);
     
-    // Ambil Template khusus yang masuk list ini
     $list_templates_query = "SELECT id, template_name FROM message_templates WHERE automation_list_id = $list_id ORDER BY template_name ASC";
     $list_templates_res = mysqli_query($conn, $list_templates_query);
 ?>
@@ -305,14 +323,14 @@ foreach($automation_lists_data as $row):
                 <form method="post" action="">
                     <div class="modal-body">
                         <div class="alert alert-info py-2">
-                            <small><i class="bi bi-info-circle"></i> Tandai template lama yang sudah dikirim secara manual agar sistem automasi melewati grup tersebut.</small>
+                            <small><i class="bi bi-info-circle"></i> Pilih grup di bawah ini. Jika ada template yang tercentang, artinya pesan tersebut <strong>sudah pernah</strong> dikirim.</small>
                         </div>
                         <input type="hidden" name="list_id" value="<?php echo $list_id; ?>">
                         
                         <div class="mb-3">
                             <label class="form-label fw-bold">Pilih Grup Tujuan</label>
-                            <select name="group_id" class="form-select" required>
-                                <option value="">-- Pilih Grup --</option>
+                            <select name="group_id" class="form-select group-select" data-list-id="<?php echo $list_id; ?>" required>
+                                <option value="">-- Pilih Grup Untuk Dilihat --</option>
                                 <?php 
                                 $current_acc = "";
                                 while($lg = mysqli_fetch_assoc($list_groups_res)): 
@@ -335,7 +353,7 @@ foreach($automation_lists_data as $row):
                                     while($lt = mysqli_fetch_assoc($list_templates_res)): 
                                 ?>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="template_ids[]" value="<?php echo $lt['id']; ?>" id="lt_<?php echo $list_id.'_'.$lt['id']; ?>">
+                                        <input class="form-check-input template-checkbox" type="checkbox" name="template_ids[]" value="<?php echo $lt['id']; ?>" id="lt_<?php echo $list_id.'_'.$lt['id']; ?>">
                                         <label class="form-check-label" for="lt_<?php echo $list_id.'_'.$lt['id']; ?>">
                                             <?php echo htmlspecialchars(html_entity_decode($lt['template_name'], ENT_QUOTES)); ?>
                                         </label>
@@ -353,7 +371,7 @@ foreach($automation_lists_data as $row):
                         <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#resetLogModal_<?php echo $list_id; ?>">Reset Riwayat</button>
                         <div>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" name="mark_manual_log" class="btn btn-warning">Tandai Terkirim</button>
+                            <button type="submit" name="mark_manual_log" class="btn btn-warning">Simpan & Sinkronisasi</button>
                         </div>
                     </div>
                 </form>
@@ -475,7 +493,44 @@ foreach($automation_lists_data as $row):
             </div>
         </div>
     </div>
-
 <?php endforeach; ?>
+
+<script>
+// Data Log diambil dari Database dan diubah ke Format JSON
+const automationLogs = <?php echo json_encode($logs_data); ?>;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const groupSelects = document.querySelectorAll('.group-select');
+    
+    groupSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const groupId = this.value;
+            const listId = this.getAttribute('data-list-id');
+            const modal = document.getElementById('manualLogModal_' + listId);
+            
+            // 1. Matikan (uncheck) semua centang di modal ini terlebih dahulu
+            modal.querySelectorAll('.template-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // 2. Cek apakah ada riwayat untuk kombinasi List + Grup ini
+            if(groupId && listId) {
+                const key = listId + '_' + groupId; // Format kunci: "ListID_GroupID"
+                
+                // Jika kunci ditemukan di data JSON, centang kotaknya
+                if(automationLogs[key]) {
+                    automationLogs[key].forEach(templateId => {
+                        const checkboxId = 'lt_' + listId + '_' + templateId;
+                        const cb = document.getElementById(checkboxId);
+                        if(cb) {
+                            cb.checked = true; // Centang otomatis!
+                        }
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
 
 <?php include('../includes/footer.php'); ?>
