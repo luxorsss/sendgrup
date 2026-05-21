@@ -245,8 +245,13 @@ include('../includes/header.php');
         
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Send Instant Message</h1>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h1 class="h2 mb-0">Send Instant Message</h1>
+                </div>
             </div>
             
             <?php if (mysqli_num_rows($accounts_result) == 0): ?>
@@ -484,32 +489,6 @@ include('../includes/header.php');
 		}
 	});
 	
-	// ... kode JavaScript sebelumnya ...
-
-// Toggle schedule fields
-document.getElementById('schedule_message').addEventListener('change', function() {
-    const scheduleFields = document.getElementById('schedule_fields');
-    scheduleFields.style.display = this.checked ? 'block' : 'none';
-
-    // Set minimal date to today
-    if (this.checked) {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('schedule_date').min = today;
-    }
-});
-
-// Update button text based on schedule selection
-document.getElementById('schedule_message').addEventListener('change', function() {
-    const submitButton = document.getElementById('submit_button');
-    if (this.checked) {
-        submitButton.innerHTML = '<i class="bi bi-calendar-check"></i> Schedule Message';
-        submitButton.name = 'schedule_message';
-    } else {
-        submitButton.innerHTML = '<i class="bi bi-send"></i> Send Message Now';
-        submitButton.name = 'send_message';
-    }
-});
-
 // Fungsi untuk menambahkan format ke textarea
 function wrapText(textarea, start, end) {
     const startCursor = textarea.selectionStart;
