@@ -2,7 +2,7 @@
 // Dapatkan nama file yang sedang dibuka (misal: 'dashboard.php', 'automations.php')
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
-<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
     <div class="position-sticky pt-3">
         <ul class="nav flex-column">
             <li class="nav-item">

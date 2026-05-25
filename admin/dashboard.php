@@ -25,9 +25,9 @@ include('../includes/header.php');
             
             <div class="row">
                 <div class="col-md-3 mb-4">
-                    <div class="card text-center">
+                    <div class="card card-feature card-feature-lavender text-center">
                         <div class="card-body">
-                            <i class="bi bi-person-circle fs-1 text-primary"></i>
+                            <i class="bi bi-person-circle fs-1" style="color: var(--colors-brand-purple-800) !important;"></i>
                             <h5 class="card-title mt-3">WhatsApp Accounts</h5>
                             <?php
                             $query = "SELECT COUNT(*) as total FROM whatsapp_numbers WHERE user_id = " . $_SESSION['user_id'];
@@ -35,15 +35,15 @@ include('../includes/header.php');
                             $row = mysqli_fetch_assoc($result);
                             ?>
                             <p class="card-text fs-4"><?php echo $row['total']; ?></p>
-                            <a href="whatsapp_accounts.php" class="btn btn-sm btn-primary">Manage Accounts</a>
+                            <a href="whatsapp_accounts.php" class="btn btn-sm btn-outline-primary w-100" style="border-color: var(--colors-brand-purple-800); color: var(--colors-brand-purple-800);">Manage Accounts</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-3 mb-4">
-                    <div class="card text-center">
+                    <div class="card card-feature card-feature-mint text-center">
                         <div class="card-body">
-                            <i class="bi bi-people-fill fs-1 text-success"></i>
+                            <i class="bi bi-people-fill fs-1" style="color: var(--colors-brand-green) !important;"></i>
                             <h5 class="card-title mt-3">WhatsApp Groups</h5>
                             <?php
                             $query = "SELECT COUNT(*) as total FROM whatsapp_groups WHERE whatsapp_number_id IN (SELECT id FROM whatsapp_numbers WHERE user_id = " . $_SESSION['user_id'] . ")";
@@ -51,15 +51,15 @@ include('../includes/header.php');
                             $row = mysqli_fetch_assoc($result);
                             ?>
                             <p class="card-text fs-4"><?php echo $row['total']; ?></p>
-                            <a href="whatsapp_groups.php" class="btn btn-sm btn-success">Manage Groups</a>
+                            <a href="whatsapp_groups.php" class="btn btn-sm btn-outline-primary w-100" style="border-color: var(--colors-brand-green); color: var(--colors-brand-green);">Manage Groups</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-3 mb-4">
-                    <div class="card text-center">
+                    <div class="card card-feature card-feature-sky text-center">
                         <div class="card-body">
-                            <i class="bi bi-file-earmark-text fs-1 text-info"></i>
+                            <i class="bi bi-file-earmark-text fs-1" style="color: var(--colors-link-blue) !important;"></i>
                             <h5 class="card-title mt-3">Message Templates</h5>
                             <?php
                             $query = "SELECT COUNT(*) as total FROM message_templates WHERE whatsapp_number_id IN (SELECT id FROM whatsapp_numbers WHERE user_id = " . $_SESSION['user_id'] . ")";
@@ -67,15 +67,15 @@ include('../includes/header.php');
                             $row = mysqli_fetch_assoc($result);
                             ?>
                             <p class="card-text fs-4"><?php echo $row['total']; ?></p>
-                            <a href="message_templates.php" class="btn btn-sm btn-info">Manage Templates</a>
+                            <a href="message_templates.php" class="btn btn-sm btn-outline-primary w-100" style="border-color: var(--colors-link-blue); color: var(--colors-link-blue);">Manage Templates</a>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-3 mb-4">
-                    <div class="card text-center">
+                    <div class="card card-feature card-feature-peach text-center">
                         <div class="card-body">
-                            <i class="bi bi-clock-history fs-1 text-warning"></i>
+                            <i class="bi bi-clock-history fs-1" style="color: var(--colors-brand-orange) !important;"></i>
                             <h5 class="card-title mt-3">Sent Messages</h5>
                             <?php
                             $query = "SELECT COUNT(*) as total FROM message_history WHERE whatsapp_number_id IN (SELECT id FROM whatsapp_numbers WHERE user_id = " . $_SESSION['user_id'] . ")";
@@ -83,7 +83,7 @@ include('../includes/header.php');
                             $row = mysqli_fetch_assoc($result);
                             ?>
                             <p class="card-text fs-4"><?php echo $row['total']; ?></p>
-                            <a href="message_history.php" class="btn btn-sm btn-warning">View History</a>
+                            <a href="message_history.php" class="btn btn-sm btn-outline-primary w-100" style="border-color: var(--colors-brand-orange); color: var(--colors-brand-orange);">View History</a>
                         </div>
                     </div>
                 </div>

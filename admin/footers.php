@@ -191,11 +191,19 @@ include('../includes/header.php');
         
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Footers</h1>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFooterModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
-                    <i class="bi bi-plus-circle"></i> Add New Footer
-                </button>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h1 class="h2 mb-0">Footers</h1>
+                </div>
+                
+                <div class="d-flex gap-2 flex-wrap justify-content-start justify-content-md-end">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFooterModal">
+                        <i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Add Footer</span>
+                    </button>
+                </div>
             </div>
             
             <?php if (mysqli_num_rows($accounts_result) == 0): ?>

@@ -42,8 +42,13 @@ include('../includes/header.php');
 
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Copy Content</h1>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h1 class="h2 mb-0">Copy Content</h1>
+                </div>
             </div>
 
             <div class="card">

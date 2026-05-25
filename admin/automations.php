@@ -179,7 +179,7 @@ include('../includes/header.php');
                     <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
                         <i class="bi bi-list"></i>
                     </button>
-                    <h1 class="h2 mb-0">Automations (Pesan Berantai)</h1>
+                    <h1 class="h2 mb-0">Automations</h1>
                 </div>
                 
                 <div class="d-flex gap-2 flex-wrap justify-content-start justify-content-md-end">

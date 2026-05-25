@@ -16,167 +16,299 @@ require_once(__DIR__ . '/functions.php');
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <style>
-        /* --- Import Font Keren dari Google --- */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        /* --- Import Inter from Google Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-/* --- Variabel Warna & Properti Kustom --- */
-:root {
-    --primary-color: #128C7E;
-    --secondary-color: #25D366;
-    --dark-color: #075E54;
-    --light-color: #DCF8C6;
-    --background-color: #f0f2f5; /* Warna latar belakang seperti WhatsApp Web */
-    --primary-gradient: linear-gradient(135deg, #25D366, #128C7E);
-    --border-radius-lg: 16px; /* Sudut yang lebih tumpul */
-    --border-radius-sm: 8px;
-    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.1);
-    --transition-speed: 0.3s;
-}
+        /* --- Design Tokens based on DESIGN.md --- */
+        :root {
+            /* Brand & Primary */
+            --colors-primary: #8a2be2; /* Notion Purple */
+            --colors-primary-pressed: #7822c9;
+            --colors-brand-navy: #0F172A;
+            --colors-link-blue: #0A85D1;
+            
+            /* Surface */
+            --colors-canvas: #FFFFFF;
+            --colors-surface: #F7F7F5;
+            --colors-surface-soft: #F9F9F8;
+            --colors-hairline: #E2E2E2;
+            --colors-hairline-strong: #D1D1D1;
+            
+            /* Card Tints */
+            --colors-card-tint-peach: #FFF0E5;
+            --colors-card-tint-rose: #FFE5E5;
+            --colors-card-tint-mint: #E5F2E5;
+            --colors-card-tint-lavender: #F0E5FF;
+            --colors-card-tint-sky: #E5F0FF;
+            --colors-card-tint-yellow: #FFFBE5;
+            --colors-card-tint-yellow-bold: #FFE500;
+            --colors-card-tint-cream: #F5F2F0;
+            
+            /* Text */
+            --colors-ink-deep: #000000;
+            --colors-ink: #37352F;
+            --colors-charcoal: #5A5A5A;
+            --colors-steel: #7A7A7A;
+            --colors-muted: #999999;
+            --colors-on-dark: #FFFFFF;
+            
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            
+            /* Shapes */
+            --rounded-xs: 4px;
+            --rounded-sm: 6px;
+            --rounded-md: 8px; /* Buttons, inputs */
+            --rounded-lg: 12px; /* Cards */
+            --rounded-full: 9999px; /* Badges, pill tabs */
+        }
 
-/* --- Gaya Dasar Body --- */
-body {
-    background-color: var(--background-color);
-    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: radial-gradient(circle at 10% 20%, rgba(220, 248, 198, 0.3) 0%, rgba(255, 255, 255, 0) 50%);
-}
+        /* --- Base Typography & Body --- */
+        body {
+            background-color: var(--colors-canvas);
+            color: var(--colors-ink);
+            font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif;
+            font-size: 16px;
+            line-height: 1.55;
+            background-image: none; /* Remove previous background gradient */
+        }
 
-/* --- Navbar dengan Efek Gradien --- */
-.navbar {
-    background: var(--primary-color);
-    box-shadow: var(--shadow-md);
-    padding: 0.75rem 0;
-}
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            color: var(--colors-ink-deep);
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
 
-.navbar-brand {
-    font-weight: 700; /* Lebih tebal */
-    color: white !important;
-    transition: transform var(--transition-speed) ease;
-}
+        /* --- Top Navigation --- */
+        .navbar {
+            background-color: var(--colors-canvas) !important;
+            border-bottom: 1px solid var(--colors-hairline);
+            box-shadow: none;
+            padding: var(--spacing-sm) 0;
+        }
 
-.navbar-brand:hover {
-    transform: scale(1.05);
-}
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--colors-ink-deep) !important;
+            transition: none;
+        }
 
-.nav-link {
-    color: rgba(255, 255, 255, 0.85) !important;
-    font-weight: 500;
-    transition: color var(--transition-speed) ease;
-}
+        .navbar-brand:hover {
+            transform: none;
+        }
 
-.nav-link:hover {
-    color: white !important;
-}
+        .nav-link {
+            color: var(--colors-steel) !important;
+            font-weight: 500;
+            font-size: 14px;
+        }
 
-/* --- Efek Kaca Buram (Glassmorphism) untuk Card --- */
-.card {
-    border-radius: var(--border-radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: var(--shadow-md);
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px); /* Untuk Safari */
-    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-}
+        .nav-link:hover {
+            color: var(--colors-ink) !important;
+        }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-}
+        /* --- Cards --- */
+        .card {
+            background-color: var(--colors-canvas);
+            border: 1px solid var(--colors-hairline);
+            border-radius: var(--rounded-lg);
+            box-shadow: none; /* Flat by default */
+            transition: none;
+            backdrop-filter: none;
+        }
 
-.card-header {
-    background: var(--primary-gradient);
-    color: white;
-    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0 !important;
-    font-weight: 600;
-    border-bottom: none;
-    padding: 1rem 1.5rem;
-}
+        .card:hover {
+            transform: none;
+            box-shadow: none;
+        }
 
-/* --- Sidebar Modern dengan Transisi --- */
-.sidebar {
-    background-color: #ffffff;
-    box-shadow: var(--shadow-sm);
-    min-height: calc(100vh - 72px); /* Disesuaikan dengan padding navbar */
-}
+        .card-header {
+            background-color: transparent;
+            color: var(--colors-ink-deep);
+            border-bottom: 1px solid var(--colors-hairline);
+            border-radius: var(--rounded-lg) var(--rounded-lg) 0 0 !important;
+            font-weight: 600;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            font-size: 18px;
+        }
 
-.sidebar .nav-link {
-    color: #555 !important;
-    padding: 0.8rem 1.5rem;
-    border-radius: var(--border-radius-sm);
-    margin: 0.2rem 0.5rem;
-    font-weight: 500;
-    transition: all var(--transition-speed) ease;
-}
+        /* --- Sidebar Modern --- */
+        .sidebar {
+            background-color: var(--colors-surface);
+            box-shadow: none;
+            border-right: 1px solid var(--colors-hairline);
+            min-height: calc(100vh - 65px);
+        }
 
-.sidebar .nav-link:hover {
-    background-color: var(--light-color);
-    color: var(--dark-color) !important;
-    transform: translateX(5px);
-}
+        .sidebar .nav-link {
+            color: var(--colors-ink) !important;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--rounded-md);
+            margin: 0.2rem 0.5rem;
+            font-weight: 500;
+            font-size: 14px;
+            transition: none;
+        }
 
-.sidebar .nav-link.active {
-    background: var(--primary-gradient);
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(18, 140, 126, 0.3);
-}
+        .sidebar .nav-link:hover {
+            background-color: var(--colors-surface-soft);
+            color: var(--colors-ink-deep) !important;
+            transform: none;
+        }
 
-.sidebar .nav-link i {
-    margin-right: 12px;
-    width: 20px; /* Agar ikon lebih rapi */
-    text-align: center;
-}
+        .sidebar .nav-link.active {
+            background-color: var(--colors-hairline);
+            color: var(--colors-ink-deep) !important;
+            box-shadow: none;
+        }
 
-/* --- Konten Utama & Form --- */
-.main-content {
-    padding: 30px;
-}
+        .sidebar .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            color: var(--colors-charcoal);
+        }
 
-.form-label strong {
-    color: var(--dark-color);
-}
+        /* --- Konten Utama & Form --- */
+        .main-content {
+            padding: 32px;
+        }
 
-.form-control {
-    border-radius: var(--border-radius-sm);
-    padding: 12px;
-    border: 1px solid #ddd;
-    transition: border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-}
+        .form-label {
+            font-weight: 500;
+            color: var(--colors-ink);
+            font-size: 14px;
+        }
+        
+        .form-label strong {
+            color: var(--colors-ink-deep);
+        }
 
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.2);
-}
+        .form-control, .form-select {
+            border-radius: var(--rounded-md);
+            padding: 10px 14px;
+            border: 1px solid var(--colors-hairline-strong);
+            background-color: var(--colors-canvas);
+            color: var(--colors-ink);
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+            height: 44px;
+        }
 
-/* --- Tombol Aksi Utama yang Keren --- */
-.btn-brand-send {
-    background: var(--primary-gradient);
-    color: white;
-    border: none;
-    font-weight: 600;
-    padding: 12px 30px;
-    border-radius: 50px; /* Bentuk pil */
-    transition: all var(--transition-speed) ease;
-    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-    letter-spacing: 0.5px;
-}
+        .form-control:focus, .form-select:focus {
+            border-color: var(--colors-primary);
+            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+            outline: none;
+        }
 
-.btn-brand-send:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 7px 20px rgba(37, 211, 102, 0.6);
-    color: white;
-}
+        /* --- Tombol Aksi --- */
+        .btn {
+            border-radius: var(--rounded-md);
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 18px;
+            letter-spacing: 0;
+            transition: background-color 0.2s ease;
+            box-shadow: none;
+        }
+        
+        .btn-primary, .btn-brand-send {
+            background-color: var(--colors-primary);
+            border: none;
+            color: var(--colors-on-dark);
+        }
 
-.footer {
-    background-color: transparent; /* Biar menyatu dengan body */
-    padding: 15px 0;
-    text-align: center;
-    border-top: 1px solid #dee2e6;
-}
+        .btn-primary:hover, .btn-brand-send:hover {
+            background-color: var(--colors-primary-pressed);
+            transform: none;
+            box-shadow: none;
+            color: var(--colors-on-dark);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid var(--colors-hairline-strong);
+            color: var(--colors-ink);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--colors-surface);
+            color: var(--colors-ink);
+            border-color: var(--colors-hairline-strong);
+        }
+
+        .btn-outline-primary {
+            color: var(--colors-ink);
+            border: 1px solid var(--colors-hairline-strong);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--colors-surface);
+            color: var(--colors-ink);
+        }
+
+        .footer {
+            background-color: var(--colors-canvas);
+            padding: 24px 0;
+            text-align: center;
+            border-top: 1px solid var(--colors-hairline);
+            color: var(--colors-steel);
+            font-size: 14px;
+        }
+        
+        /* Utility */
+        .text-muted {
+            color: var(--colors-steel) !important;
+        }
+        
+        .badge {
+            border-radius: var(--rounded-full);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 10px;
+        }
+
+        /* --- Custom Notion-like Classes --- */
+        .hero-band-dark {
+            background-color: var(--colors-brand-navy);
+            color: var(--colors-on-dark);
+            padding: 80px 0;
+            margin-top: -24px; /* Pull up into container margin */
+            border-radius: var(--rounded-lg);
+            margin-bottom: 48px;
+        }
+
+        .hero-band-dark h1, .hero-band-dark h2 {
+            color: var(--colors-on-dark);
+            font-size: 56px;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .card-feature-peach { background-color: var(--colors-card-tint-peach); }
+        .card-feature-rose { background-color: var(--colors-card-tint-rose); }
+        .card-feature-mint { background-color: var(--colors-card-tint-mint); }
+        .card-feature-sky { background-color: var(--colors-card-tint-sky); }
+        .card-feature-lavender { background-color: var(--colors-card-tint-lavender); }
+        .card-feature-yellow { background-color: var(--colors-card-tint-yellow); }
+        .card-feature-yellow-bold { background-color: var(--colors-card-tint-yellow-bold); color: var(--colors-ink-deep); }
+        
+        .card-feature {
+            padding: var(--spacing-xxl);
+            border: none;
+        }
+        .card-feature h4 {
+            font-size: 22px;
+            margin-bottom: var(--spacing-md);
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand" href="<?php echo is_logged_in() ? 'dashboard.php' : 'index.php'; ?>">
                 <i class="bi bi-whatsapp me-2"></i>WhatsApp Sender
