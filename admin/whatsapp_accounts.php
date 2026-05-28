@@ -149,61 +149,74 @@ include('../includes/header.php');
                 </div>
             <?php endif; ?>
             
-            <div class="card">
-                <div class="card-body">
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Account Name</th>
-                                        <th>API Key</th>
-                                        <th>API URL</th>
-                                        <th>Status</th>
-                                        <th width="150">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = mysqli_fetch_assoc($result)): ?>
-                                        <tr>
-                                            <td><?php echo $row['account_name']; ?></td>
-                                            <td><?php echo substr($row['api_key'], 0, 10) . '...'; ?></td>
-                                            <td><?php echo $row['api_url']; ?></td>
-                                            <td>
-                                                <?php if ($row['active']): ?>
-                                                    <span class="badge bg-success">Active</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-danger">Inactive</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-primary edit-account" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-account-name="<?php echo $row['account_name']; ?>"
-                                                        data-api-key="<?php echo $row['api_key']; ?>"
-                                                        data-api-url="<?php echo $row['api_url']; ?>"
-                                                        data-active="<?php echo $row['active']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#editAccountModal">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger delete-account" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-account-name="<?php echo $row['account_name']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
+            <div class="mt-2">
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <div class="row-list">
+                        
+                        <div class="row-item py-2" style="grid-template-columns: 2fr 1.5fr 2fr 1fr auto; border-bottom: 2px solid var(--ink); animation: none; opacity: 1; transform: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--ink-muted);">
+                            <div>Nama Akun</div>
+                            <div>API Key</div>
+                            <div>API URL</div>
+                            <div>Status</div>
+                            <div class="text-end">Aksi</div>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">
-                            <p class="mb-0">No WhatsApp accounts found. Click "Add New Account" to add your first account.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+
+                        <?php 
+                        $delay = 0;
+                        while($row = mysqli_fetch_assoc($result)): 
+                        ?>
+                            <div class="row-item" style="grid-template-columns: 2fr 1.5fr 2fr 1fr auto; animation-delay: <?php echo $delay; ?>ms">
+                                
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem;"><?php echo htmlspecialchars($row['account_name']); ?></div>
+                                </div>
+                                
+                                <div class="font-mono text-muted" style="letter-spacing: 0.05em;">
+                                    <?php echo substr(htmlspecialchars($row['api_key']), 0, 15) . '...'; ?>
+                                </div>
+                                
+                                <div class="font-mono" style="font-size: 0.8rem; word-break: break-all;">
+                                    <?php echo htmlspecialchars($row['api_url']); ?>
+                                </div>
+                                
+                                <div>
+                                    <?php if ($row['active']): ?>
+                                        <span class="badge bg-dark" style="border-radius: 2px; padding: 5px 8px; font-family: 'Geist Mono', monospace; font-size: 0.7rem;">ONLINE</span>
+                                    <?php else: ?>
+                                        <span class="badge border text-dark" style="background: transparent; border-color: var(--border-color)!important; border-radius: 2px; padding: 5px 8px; font-family: 'Geist Mono', monospace; font-size: 0.7rem;">OFFLINE</span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary edit-account" 
+                                            data-id="<?php echo $row['id']; ?>"
+                                            data-account-name="<?php echo htmlspecialchars($row['account_name']); ?>"
+                                            data-api-key="<?php echo htmlspecialchars($row['api_key']); ?>"
+                                            data-api-url="<?php echo htmlspecialchars($row['api_url']); ?>"
+                                            data-active="<?php echo $row['active']; ?>"
+                                            data-bs-toggle="modal" data-bs-target="#editAccountModal">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-account" 
+                                            data-id="<?php echo $row['id']; ?>"
+                                            data-account-name="<?php echo htmlspecialchars($row['account_name']); ?>"
+                                            data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php 
+                        $delay += 40; // Efek waterfall 40ms per baris
+                        endwhile; 
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 3rem 1rem;">
+                        <i class="bi bi-plug" style="font-size: 2rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                        <p class="mb-0 font-mono">Belum ada akun WhatsApp tertaut.</p>
+                        <p class="font-mono text-muted" style="font-size: 0.85rem;">Klik "Add New Account" di pojok kanan atas untuk memulai.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>

@@ -207,83 +207,98 @@ include('../includes/header.php');
                 </div>
             <?php endif; ?>
             
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Filter Groups</h5>
+            <div class="p-3 mb-4" style="border: 1px solid var(--border-color); border-radius: var(--rounded-md); background: transparent;">
+                <div style="font-family: 'Geist Mono', monospace; font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <i class="bi bi-funnel"></i> Filter Grup
                 </div>
-                <div class="card-body">
-                    <form method="get" action="" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="account" class="form-label">WhatsApp Account</label>
-                            <select class="form-select" id="account" name="account">
-                                <option value="">All Accounts</option>
-                                <?php
-                                mysqli_data_seek($accounts_result, 0);
-                                while($account = mysqli_fetch_assoc($accounts_result)): 
-                                ?>
-                                    <option value="<?php echo $account['id']; ?>" <?php echo $filter_account == $account['id'] ? 'selected' : ''; ?>>
-                                        <?php echo $account['account_name']; ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="search" class="form-label">Search</label>
-                            <input type="text" class="form-control" id="search" name="search" placeholder="Search by group name or ID" value="<?php echo $search; ?>">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        </div>
-                    </form>
-                </div>
+                <form method="get" action="" class="row g-3 utilitarian-form">
+                    <div class="col-md-4">
+                        <label for="account" class="form-label" style="font-size: 0.8rem; font-weight: 600; color: var(--ink); text-transform: uppercase; font-family: 'Geist Mono', monospace;">WhatsApp Account</label>
+                        <select class="form-select" id="account" name="account" style="border-radius: 4px; border: 1px solid var(--border-color); font-family: 'Satoshi', sans-serif;">
+                            <option value="">All Accounts</option>
+                            <?php
+                            mysqli_data_seek($accounts_result, 0);
+                            while($account = mysqli_fetch_assoc($accounts_result)): 
+                            ?>
+                                <option value="<?php echo $account['id']; ?>" <?php echo $filter_account == $account['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($account['account_name']); ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="search" class="form-label" style="font-size: 0.8rem; font-weight: 600; color: var(--ink); text-transform: uppercase; font-family: 'Geist Mono', monospace;">Pencarian</label>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Cari nama grup atau ID..." value="<?php echo htmlspecialchars($search); ?>" style="border-radius: 4px; border: 1px solid var(--border-color); font-family: 'Satoshi', sans-serif;">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100" style="border-radius: 4px;">Cari</button>
+                    </div>
+                </form>
             </div>
             
-            <div class="card">
-                <div class="card-body">
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Group Name</th>
-                                        <th>Group ID</th>
-                                        <th>WhatsApp Account</th>
-                                        <th width="150">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = mysqli_fetch_assoc($result)): ?>
-                                        <tr>
-                                            <td><?php echo $row['group_name']; ?></td>
-                                            <td><?php echo $row['group_wa_id']; ?></td>
-                                            <td><?php echo $row['account_name']; ?></td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-primary edit-group" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-whatsapp-number-id="<?php echo $row['whatsapp_number_id']; ?>"
-                                                        data-group-name="<?php echo $row['group_name']; ?>"
-                                                        data-group-wa-id="<?php echo $row['group_wa_id']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#editGroupModal">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger delete-group" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-group-name="<?php echo $row['group_name']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#deleteGroupModal">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
+            <div class="mt-2 mb-5">
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <div class="row-list">
+                        
+                        <div class="row-item py-2" style="grid-template-columns: 2fr 3fr 1.5fr auto; border-bottom: 2px solid var(--ink); animation: none; opacity: 1; transform: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--ink-muted);">
+                            <div>Nama Grup</div>
+                            <div>Group WA ID (JID)</div>
+                            <div>Akun WA</div>
+                            <div class="text-end">Aksi</div>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">
-                            <p class="mb-0">No WhatsApp groups found. Click "Add New Group" to add your first group.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+
+                        <?php 
+                        $delay = 0;
+                        while($row = mysqli_fetch_assoc($result)): 
+                        ?>
+                            <div class="row-item" style="grid-template-columns: 2fr 3fr 1.5fr auto; animation-delay: <?php echo $delay; ?>ms">
+                                
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem; color: var(--ink);">
+                                        <?php echo htmlspecialchars($row['group_name']); ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="font-mono text-muted" style="font-size: 0.85rem; letter-spacing: 0.05em; background: rgba(10,10,10,0.03); padding: 4px 8px; border-radius: 2px; word-break: break-all; display: inline-block; width: fit-content;">
+                                    <?php echo htmlspecialchars($row['group_wa_id']); ?>
+                                </div>
+                                
+                                <div class="font-mono" style="font-size: 0.85rem; color: var(--ink);">
+                                    <i class="bi bi-broadcast me-1" style="color: var(--accent);"></i> 
+                                    <?php echo htmlspecialchars($row['account_name']); ?>
+                                </div>
+                                
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary edit-group" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.75rem;"
+                                            data-id="<?php echo $row['id']; ?>"
+                                            data-whatsapp-number-id="<?php echo $row['whatsapp_number_id']; ?>"
+                                            data-group-name="<?php echo htmlspecialchars($row['group_name']); ?>"
+                                            data-group-wa-id="<?php echo htmlspecialchars($row['group_wa_id']); ?>"
+                                            data-bs-toggle="modal" data-bs-target="#editGroupModal">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-group" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.75rem;"
+                                            data-id="<?php echo $row['id']; ?>"
+                                            data-group-name="<?php echo htmlspecialchars($row['group_name']); ?>"
+                                            data-bs-toggle="modal" data-bs-target="#deleteGroupModal">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php 
+                        $delay += 40; // Tambah 40ms untuk setiap baris agar muncul mengalir
+                        endwhile; 
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 3rem 1rem;">
+                        <i class="bi bi-people" style="font-size: 2rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                        <p class="mb-0 font-mono">Belum ada grup WhatsApp yang ditambahkan.</p>
+                        <p class="font-mono text-muted" style="font-size: 0.85rem;">Klik "Add New Group" di pojok kanan atas.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>

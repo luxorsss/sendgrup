@@ -330,11 +330,11 @@ include('../includes/header.php');
                     </ul>
                 </div>
             <?php endif; ?>
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Filter Scheduled Messages</h5>
+            <div class="p-3 mb-4" style="border: 1px solid var(--border-color); border-radius: var(--rounded-md); background: transparent;">
+                <div style="font-family: 'Geist Mono', monospace; font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <i class="bi bi-funnel"></i> Filter Jadwal
                 </div>
-                <div class="card-body">
+                <div>
                     <form method="get" action="" class="row g-3">
                         <div class="col-md-3">
                             <label for="account" class="form-label">WhatsApp Account</label>
@@ -369,84 +369,105 @@ include('../includes/header.php');
                     </form>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-body">
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Date & Time</th>
-                                        <th>Template</th>
-                                        <th>Groups</th>
-                                        <th>WhatsApp Account</th>
-                                        <th>Status</th>
-                                        <th width="100">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = mysqli_fetch_assoc($result)): 
-                                        // Get groups for this scheduled message
-                                        $groups_query = "SELECT wg.group_name 
-                                                        FROM scheduled_message_groups smg 
-                                                        JOIN whatsapp_groups wg ON smg.group_id = wg.id 
-                                                        WHERE smg.scheduled_message_id = " . $row['id'];
-                                        $groups_result = mysqli_query($conn, $groups_query);
-                                        $groups = [];
-                                        while ($group = mysqli_fetch_assoc($groups_result)) {
-                                            $groups[] = $group['group_name'];
-                                        }
-                                        $groups_count = count($groups);
-                                        $groups_text = implode(", ", array_slice($groups, 0, 2));
-                                        if ($groups_count > 2) {
-                                            $groups_text .= " and " . ($groups_count - 2) . " more";
-                                        }
-                                    ?>
-                                        <tr>
-                                            <td><?php echo date('d M Y', strtotime($row['schedule_date'])) . ' ' . date('H:i', strtotime($row['schedule_time'])); ?></td>
-                                            <td><?php echo $row['template_name']; ?></td>
-                                            <td>
-                                                <?php echo $groups_text; ?>
-                                                <span class="badge bg-secondary"><?php echo $groups_count; ?></span>
-                                            </td>
-                                            <td><?php echo $row['account_name']; ?></td>
-                                            <td>
-                                                <?php if ($row['status'] == 'pending'): ?>
-                                                    <span class="badge bg-warning">Pending</span>
-                                                <?php elseif ($row['status'] == 'sent'): ?>
-                                                    <span class="badge bg-success">Sent</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-danger">Failed</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <?php if ($row['status'] == 'pending'): ?>
-                                                    <button type="button" class="btn btn-sm btn-danger cancel-schedule" 
-                                                            data-id="<?php echo $row['id']; ?>"
-                                                            data-template-name="<?php echo $row['template_name']; ?>"
-                                                            data-groups-text="<?php echo $groups_text; ?>"
-                                                            data-schedule-date="<?php echo date('d M Y', strtotime($row['schedule_date'])); ?>"
-                                                            data-schedule-time="<?php echo date('H:i', strtotime($row['schedule_time'])); ?>"
-                                                            data-bs-toggle="modal" data-bs-target="#cancelScheduleModal">
-                                                        <i class="bi bi-x-circle"></i>
-                                                    </button>
-                                                <?php else: ?>
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled>
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </button>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
+            <div class="mt-2">
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <div class="row-list">
+                        
+                        <div class="row-item py-2" style="grid-template-columns: 1.5fr 2fr 1.5fr 1fr 100px auto; border-bottom: 2px solid var(--ink); animation: none; opacity: 1; transform: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--ink-muted);">
+                            <div>Waktu Keberangkatan</div>
+                            <div>Template Pesan</div>
+                            <div>Target Grup</div>
+                            <div>Akun Pengirim</div>
+                            <div>Status</div>
+                            <div class="text-end">Aksi</div>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">
-                            <p class="mb-0">No scheduled messages found. Click "Schedule New Message" to schedule your first message.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+
+                        <?php 
+                        $delay = 0;
+                        while($row = mysqli_fetch_assoc($result)): 
+                            // Logika get groups (TIDAK DIUBAH)
+                            $groups_query = "SELECT wg.group_name 
+                                            FROM scheduled_message_groups smg 
+                                            JOIN whatsapp_groups wg ON smg.group_id = wg.id 
+                                            WHERE smg.scheduled_message_id = " . $row['id'];
+                            $groups_result = mysqli_query($conn, $groups_query);
+                            $groups = [];
+                            while ($group = mysqli_fetch_assoc($groups_result)) {
+                                $groups[] = $group['group_name'];
+                            }
+                            $groups_count = count($groups);
+                            $groups_text = implode(", ", array_slice($groups, 0, 2));
+                            if ($groups_count > 2) {
+                                $groups_text .= " +" . ($groups_count - 2) . " lagi";
+                            }
+                        ?>
+                            <div class="row-item" style="grid-template-columns: 1.5fr 2fr 1.5fr 1fr 100px auto; animation-delay: <?php echo $delay; ?>ms">
+                                
+                                <div>
+                                    <div class="font-mono fw-bold" style="font-size: 1.25rem; color: var(--ink); line-height: 1;">
+                                        <?php echo date('H:i', strtotime($row['schedule_time'])); ?>
+                                    </div>
+                                    <div class="font-mono text-muted" style="font-size: 0.75rem; margin-top: 4px;">
+                                        <?php echo date('d M Y', strtotime($row['schedule_date'])); ?>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem;"><?php echo htmlspecialchars($row['template_name']); ?></div>
+                                </div>
+                                
+                                <div style="font-size: 0.85rem; color: var(--ink-muted);">
+                                    <?php echo htmlspecialchars($groups_text); ?>
+                                    <?php if($groups_count > 0): ?>
+                                        <span class="badge" style="background: var(--ink); color: var(--surface); border-radius: 2px; font-family: 'Geist Mono', monospace; padding: 3px 6px; margin-left: 4px;"><?php echo $groups_count; ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="font-mono" style="font-size: 0.85rem;">
+                                    <?php echo htmlspecialchars($row['account_name']); ?>
+                                </div>
+                                
+                                <div>
+                                    <?php if ($row['status'] == 'pending'): ?>
+                                        <span class="badge" style="background: #FFF9C4; color: #F57F17; border-radius: 2px; padding: 5px 8px; font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em;">PENDING</span>
+                                    <?php elseif ($row['status'] == 'sent'): ?>
+                                        <span class="badge" style="background: #E8F5E9; color: #2E7D32; border-radius: 2px; padding: 5px 8px; font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em;">SENT</span>
+                                    <?php else: ?>
+                                        <span class="badge" style="background: #FFEBEE; color: #C62828; border-radius: 2px; padding: 5px 8px; font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em;">FAILED</span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <?php if ($row['status'] == 'pending'): ?>
+                                        <button type="button" class="btn btn-sm btn-outline-danger cancel-schedule" 
+                                                style="border-radius: 4px; padding: 0.4rem 0.75rem;"
+                                                data-id="<?php echo $row['id']; ?>"
+                                                data-template-name="<?php echo htmlspecialchars($row['template_name']); ?>"
+                                                data-groups-text="<?php echo htmlspecialchars($groups_text); ?>"
+                                                data-schedule-date="<?php echo date('d M Y', strtotime($row['schedule_date'])); ?>"
+                                                data-schedule-time="<?php echo date('H:i', strtotime($row['schedule_time'])); ?>"
+                                                data-bs-toggle="modal" data-bs-target="#cancelScheduleModal">
+                                            <i class="bi bi-x-lg"></i> Batal
+                                        </button>
+                                    <?php else: ?>
+                                        <button type="button" class="btn btn-sm" style="border: 1px dashed var(--border-color); color: var(--ink-muted); background: transparent; cursor: not-allowed; border-radius: 4px; padding: 0.4rem 0.75rem;" disabled>
+                                            <i class="bi bi-check2-all"></i> Selesai
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php 
+                        $delay += 40; 
+                        endwhile; 
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 3rem 1rem;">
+                        <i class="bi bi-calendar-x" style="font-size: 2rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                        <p class="mb-0 font-mono">Belum ada pesan terjadwal.</p>
+                        <p class="font-mono text-muted" style="font-size: 0.85rem;">Klik tombol "Single Schedule" atau "Bulk Schedule" untuk mengatur jadwal.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>

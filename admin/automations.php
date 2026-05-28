@@ -173,93 +173,170 @@ include('../includes/header.php');
     <div class="row">
         <?php include('../includes/sidebar.php'); ?>
         
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
-                <div class="d-flex align-items-center mb-2 mb-md-0">
-                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content utilitarian-page">
+            
+            <style>
+                .utilitarian-page .row-list {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .utilitarian-page .row-item {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr 2.5fr 1fr auto;
+                    align-items: center;
+                    gap: 1.5rem;
+                    padding: 1.25rem 0.5rem;
+                    border-bottom: 1px solid var(--border-color);
+                    transition: background-color 200ms var(--ease-out);
+                    
+                    opacity: 0;
+                    transform: translateY(12px);
+                    animation: fadeInRow 400ms var(--ease-out) forwards;
+                }
+                @media (hover: hover) and (pointer: fine) {
+                    .utilitarian-page .row-item:hover {
+                        background-color: rgba(0, 56, 255, 0.02);
+                    }
+                }
+                .status-toggle-btn {
+                    padding: 0.35rem 0.85rem;
+                    border-radius: 4px;
+                    font-family: 'Geist Mono', monospace;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                    transition: transform 150ms var(--ease-out), background 150ms ease;
+                }
+                .status-toggle-btn:active {
+                    transform: scale(0.95);
+                }
+                .status-on {
+                    background: #E8F5E9;
+                    color: #2E7D32;
+                    border: 1px solid #A5D6A7;
+                }
+                .status-off {
+                    background: transparent;
+                    color: var(--ink-muted);
+                    border: 1px dashed var(--border-color);
+                }
+            </style>
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-end pt-4 pb-3 mb-4" style="border-bottom: 2px solid var(--ink);">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" style="border-radius: 4px;">
                         <i class="bi bi-list"></i>
                     </button>
-                    <h1 class="h2 mb-0">Automations</h1>
+                    <div>
+                        <h1 class="h2 mb-0" style="font-family: 'Clash Display', sans-serif; font-weight: 600;">Automation Engine</h1>
+                        <span class="font-mono text-muted" style="font-size: 0.85rem; display: block; margin-top: 5px;">MANAGE SEQUENCES & SCHEDULES</span>
+                    </div>
                 </div>
                 
-                <div class="d-flex gap-2 flex-wrap justify-content-start justify-content-md-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addListModal">
-                        <i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Buat Kelompok Baru</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addListModal" style="border-radius: 4px; padding: 0.6rem 1.25rem;">
+                        <i class="bi bi-plus-lg me-1"></i> Buat Kelompok
                     </button>
                 </div>
             </div>
             
             <?php display_flash_message(); ?>
             
-            <div class="card">
-                <div class="card-body">
-                    <?php if (count($automation_lists_data) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Nama Kelompok</th>
-                                        <th>Total Grup</th>
-                                        <th>Jadwal Pengiriman</th>
-                                        <th>Status</th>
-                                        <th width="280">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php 
-                                    foreach($automation_lists_data as $row): 
-                                        $list_id = $row['id'];
-                                        
-                                        $gc_res = mysqli_query($conn, "SELECT COUNT(*) as c FROM automation_groups WHERE automation_list_id = $list_id");
-                                        $group_count = mysqli_fetch_assoc($gc_res)['c'];
-                                        
-                                        $sch_res = mysqli_query($conn, "SELECT send_day, send_time FROM automation_schedules WHERE automation_list_id = $list_id");
-                                        $days_indo = ['Monday'=>'Senin', 'Tuesday'=>'Selasa', 'Wednesday'=>'Rabu', 'Thursday'=>'Kamis', 'Friday'=>'Jumat', 'Saturday'=>'Sabtu', 'Sunday'=>'Minggu'];
-                                        $selected_days = [];
-                                        $send_time = '';
-                                        while($sch = mysqli_fetch_assoc($sch_res)) {
-                                            $selected_days[] = $days_indo[$sch['send_day']];
-                                            $send_time = date('H:i', strtotime($sch['send_time']));
-                                        }
-                                        $schedule_text = empty($selected_days) ? '<span class="text-muted">Belum diatur</span>' : implode(", ", $selected_days) . " (Jam " . $send_time . ")";
-                                    ?>
-                                        <tr>
-                                            <td class="fw-bold"><?php echo htmlspecialchars($row['list_name']); ?></td>
-                                            <td><span class="badge bg-secondary"><?php echo $group_count; ?> Grup</span></td>
-                                            <td><?php echo $schedule_text; ?></td>
-                                            <td>
-                                                <form method="post" style="display:inline;">
-                                                    <input type="hidden" name="id" value="<?php echo $list_id; ?>">
-                                                    <input type="hidden" name="current_status" value="<?php echo $row['is_active']; ?>">
-                                                    <?php if ($row['is_active'] == 1): ?>
-                                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-success rounded-pill" title="Matikan"><i class="bi bi-check-circle"></i> ON</button>
-                                                    <?php else: ?>
-                                                        <button type="submit" name="toggle_status" class="btn btn-sm btn-secondary rounded-pill" title="Hidupkan"><i class="bi bi-dash-circle"></i> OFF</button>
-                                                    <?php endif; ?>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-warning text-dark" data-bs-toggle="modal" data-bs-target="#manualLogModal_<?php echo $list_id; ?>" title="Tandai Riwayat">
-                                                    <i class="bi bi-check2-all"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#manageModal_<?php echo $list_id; ?>" title="Kelola">
-                                                    <i class="bi bi-gear"></i> Kelola
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_<?php echo $list_id; ?>" title="Hapus">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+            <div class="mt-2 mb-5">
+                <?php if (count($automation_lists_data) > 0): ?>
+                    <div class="row-list">
+                        <div class="row-item py-2" style="border-bottom: 2px solid var(--ink); animation: none; opacity: 1; transform: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--ink-muted);">
+                            <div>Nama Kelompok</div>
+                            <div>Total Grup</div>
+                            <div>Jadwal Operasi</div>
+                            <div>Status Mesin</div>
+                            <div class="text-end">Konfigurasi</div>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">
-                            <p class="mb-0">Belum ada kelompok pesan berantai. Klik tombol "Buat Kelompok Baru".</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+
+                        <?php 
+                        $delay = 0;
+                        foreach($automation_lists_data as $row): 
+                            $list_id = $row['id'];
+                            
+                            $gc_res = mysqli_query($conn, "SELECT COUNT(*) as c FROM automation_groups WHERE automation_list_id = $list_id");
+                            $group_count = mysqli_fetch_assoc($gc_res)['c'];
+                            
+                            $sch_res = mysqli_query($conn, "SELECT send_day, send_time FROM automation_schedules WHERE automation_list_id = $list_id");
+                            $days_indo = ['Monday'=>'Sen', 'Tuesday'=>'Sel', 'Wednesday'=>'Rab', 'Thursday'=>'Kam', 'Friday'=>'Jum', 'Saturday'=>'Sab', 'Sunday'=>'Min'];
+                            $selected_days = [];
+                            $send_time = '';
+                            while($sch = mysqli_fetch_assoc($sch_res)) {
+                                $selected_days[] = $days_indo[$sch['send_day']];
+                                $send_time = date('H:i', strtotime($sch['send_time']));
+                            }
+                            // Memformat jadwal dengan gaya monospace
+                            $schedule_text = empty($selected_days) ? '<span class="text-muted" style="border: 1px dashed var(--border-color); padding: 2px 6px; border-radius: 2px;">NOT_SET</span>' : '<span style="color: var(--accent);">['.implode(",", $selected_days).']</span> @ '.$send_time;
+                        ?>
+                            <div class="row-item" style="animation-delay: <?php echo $delay; ?>ms">
+                                
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem; color: var(--ink);">
+                                        <?php echo htmlspecialchars($row['list_name']); ?>
+                                    </div>
+                                    <div class="font-mono text-muted" style="font-size: 0.75rem; margin-top: 4px;">ID: SEQ_00<?php echo $list_id; ?></div>
+                                </div>
+                                
+                                <div>
+                                    <span class="font-mono" style="background: rgba(10,10,10,0.05); padding: 4px 8px; border-radius: 2px; font-size: 0.85rem; color: var(--ink);">
+                                        <?php echo $group_count; ?> TARGET
+                                    </span>
+                                </div>
+                                
+                                <div class="font-mono" style="font-size: 0.85rem;">
+                                    <?php echo $schedule_text; ?>
+                                </div>
+                                
+                                <div>
+                                    <form method="post" style="margin: 0;">
+                                        <input type="hidden" name="id" value="<?php echo $list_id; ?>">
+                                        <input type="hidden" name="current_status" value="<?php echo $row['is_active']; ?>">
+                                        <?php if ($row['is_active'] == 1): ?>
+                                            <button type="submit" name="toggle_status" class="status-toggle-btn status-on" title="Matikan Mesin">
+                                                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem; vertical-align: middle;"></i> ONLINE
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="submit" name="toggle_status" class="status-toggle-btn status-off" title="Hidupkan Mesin">
+                                                <i class="bi bi-circle me-1" style="font-size: 0.5rem; vertical-align: middle;"></i> OFFLINE
+                                            </button>
+                                        <?php endif; ?>
+                                    </form>
+                                </div>
+                                
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.6rem;"
+                                            data-bs-toggle="modal" data-bs-target="#manualLogModal_<?php echo $list_id; ?>" title="Tandai Riwayat">
+                                        <i class="bi bi-journal-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm" 
+                                            style="background: rgba(0, 56, 255, 0.05); color: var(--accent); border: 1px solid rgba(0, 56, 255, 0.1); border-radius: 4px; padding: 0.35rem 0.6rem;"
+                                            data-bs-toggle="modal" data-bs-target="#manageModal_<?php echo $list_id; ?>" title="Kelola">
+                                        <i class="bi bi-sliders"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.6rem;"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal_<?php echo $list_id; ?>" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php 
+                        $delay += 40; 
+                        endforeach; 
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 3rem 1rem;">
+                        <i class="bi bi-robot" style="font-size: 2rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                        <p class="mb-0 font-mono">Mesin automasi belum dikonfigurasi.</p>
+                        <p class="font-mono text-muted" style="font-size: 0.85rem;">Klik "Buat Kelompok" untuk menyusun urutan pesan berantai.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>

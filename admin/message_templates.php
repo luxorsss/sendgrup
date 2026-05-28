@@ -196,130 +196,187 @@ include('../includes/header.php');
     <div class="row">
         <?php include('../includes/sidebar.php'); ?>
         
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <div class="d-flex align-items-center mb-2 mb-md-0">
-                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
-                        <i class="bi bi-list"></i> Menu
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content utilitarian-page">
+            
+            <style>
+                .utilitarian-page .row-list {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .utilitarian-page .row-item {
+                    display: grid;
+                    /* Checkbox | Nama Template | Kelompok Automasi | Preview Pesan | Akun | Aksi */
+                    grid-template-columns: 40px 2fr 1.5fr 3fr 1.5fr auto;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 1.25rem 0.5rem;
+                    border-bottom: 1px solid var(--border-color);
+                    transition: background-color 200ms var(--ease-out);
+                    
+                    opacity: 0;
+                    transform: translateY(12px);
+                    animation: fadeInRow 400ms var(--ease-out) forwards;
+                }
+                @media (hover: hover) and (pointer: fine) {
+                    .utilitarian-page .row-item:hover {
+                        background-color: rgba(0, 56, 255, 0.02); /* Highlight biru sangat tipis */
+                    }
+                }
+                .template-preview {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    font-size: 0.9rem;
+                    color: var(--ink-muted);
+                    font-style: italic;
+                }
+                .template-badge {
+                    background: rgba(10,10,10,0.05);
+                    color: var(--ink);
+                    padding: 4px 8px;
+                    border-radius: 2px;
+                    font-size: 0.75rem;
+                    font-family: 'Geist Mono', monospace;
+                    letter-spacing: 0.05em;
+                }
+            </style>
+
+            <!-- HEADER EDITORIAL -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-end pt-4 pb-3 mb-4" style="border-bottom: 2px solid var(--ink);">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" style="border-radius: 4px;">
+                        <i class="bi bi-list"></i>
                     </button>
-                    <h1 class="h2 mb-0">Message Templates</h1>
+                    <div>
+                        <h1 class="h2 mb-0" style="font-family: 'Clash Display', sans-serif; font-weight: 600;">Message Templates</h1>
+                        <span class="font-mono text-muted" style="font-size: 0.85rem; display: block; margin-top: 5px;">CANNED RESPONSES & BROADCAST FORMATS</span>
+                    </div>
                 </div>
                 
-                <div class="d-flex gap-2 flex-wrap justify-content-end">
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#bulkDeleteTemplatesModal" id="btnBulkDelete" disabled>
-                        <i class="bi bi-trash"></i> <span class="d-none d-md-inline">Hapus Terpilih</span>
-                    </button>
-                    
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#bulkAutomationModal" id="btnBulkAutomation" disabled>
-                        <i class="bi bi-collection-fill"></i> <span class="d-none d-md-inline">Set Kelompok Massal</span>
-                    </button>
-                    
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTemplateModal" <?php echo mysqli_num_rows($accounts_result) == 0 ? 'disabled' : ''; ?>>
-                        <i class="bi bi-plus-circle"></i> <span class="d-none d-md-inline">Add Template</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTemplateModal" style="border-radius: 4px; padding: 0.6rem 1.25rem;">
+                        <i class="bi bi-plus-lg me-1"></i> Buat Template Baru
                     </button>
                 </div>
             </div>
-            
+
             <?php display_flash_message(); ?>
-            <?php if (mysqli_num_rows($accounts_result) == 0): ?>
-                <div class="alert alert-warning"><p class="mb-0">You need to add a WhatsApp account first before creating templates.</p></div>
-            <?php endif; ?>
-            
-            <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Filter Templates</h5></div>
-                <div class="card-body">
-                    <form method="get" action="" class="row g-3">
-                        <div class="col-md-4">
-                            <label for="account" class="form-label">WhatsApp Account</label>
-                            <select class="form-select" id="account" name="account">
-                                <option value="">All Accounts</option>
-                                <?php
-                                mysqli_data_seek($accounts_result, 0);
-                                while($account = mysqli_fetch_assoc($accounts_result)): 
-                                ?>
-                                    <option value="<?php echo $account['id']; ?>" <?php echo $filter_account == $account['id'] ? 'selected' : ''; ?>><?php echo $account['account_name']; ?></option>
-                                <?php endwhile; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="search" class="form-label">Search</label>
-                            <input type="text" class="form-control" id="search" name="search" placeholder="Search by template name or content" value="<?php echo $search; ?>">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        </div>
-                    </form>
+
+            <!-- FILTER SECTION UTILITARIAN -->
+            <div class="p-3 mb-4" style="border: 1px solid var(--border-color); border-radius: 4px; background: transparent;">
+                <div style="font-family: 'Geist Mono', monospace; font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    <i class="bi bi-search"></i> Pencarian Arsip
                 </div>
+                <form method="get" action="" class="row g-3">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="search" placeholder="Cari nama template atau isi pesan..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="border-radius: 4px; border: 1px solid var(--border-color); font-family: 'Satoshi', sans-serif;">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100" style="border-radius: 4px;">Terapkan</button>
+                    </div>
+                </form>
             </div>
             
-            <div class="card">
-                <div class="card-body">
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th width="40"><input type="checkbox" id="selectAll" class="form-check-input"></th>
-                                        <th>Template Name</th>
-                                        <th>Kelompok Automasi</th>
-                                        <th>Content Preview</th>
-                                        <th>Image</th>
-                                        <th>WhatsApp Account</th>
-                                        <th width="150">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = mysqli_fetch_assoc($result)): ?>
-                                        <tr>
-                                            <td><input type="checkbox" class="form-check-input template-checkbox" value="<?php echo $row['id']; ?>"></td>
-                                            <td class="fw-bold"><?php echo $row['template_name']; ?></td>
-                                            <td>
-                                                <?php echo !empty($row['automation_list_name']) ? '<span class="badge bg-success">'.$row['automation_list_name'].'</span>' : '<span class="text-muted fst-italic">Tidak ada</span>'; ?>
-                                            </td>
-                                            <td>
-                                                <?php 
-                                                $preview = $row['message_content'];
-                                                echo strlen($preview) > 50 ? substr($preview, 0, 50) . '...' : $preview; 
-                                                ?>
-                                            </td>
-                                            <td>
-                                                <?php if (!empty($row['image_url'])): ?>
-                                                    <img src="<?php echo $row['image_url']; ?>" alt="Template Image" class="img-thumbnail" style="max-width: 50px; max-height: 50px;" onerror="this.src='../assets/img/image-placeholder.png';">
-                                                <?php else: ?>
-                                                    <span class="text-muted">No image</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo $row['account_name']; ?></td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-info text-white view-template" 
-                                                        data-id="<?php echo $row['id']; ?>" data-template-name="<?php echo $row['template_name']; ?>"
-                                                        data-message-content="<?php echo htmlspecialchars($row['message_content']); ?>"
-                                                        data-image-url="<?php echo $row['image_url']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#viewTemplateModal">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-primary edit-template" 
-                                                        data-id="<?php echo $row['id']; ?>" data-whatsapp-number-id="<?php echo $row['whatsapp_number_id']; ?>"
-                                                        data-template-name="<?php echo $row['template_name']; ?>" data-message-content="<?php echo htmlspecialchars($row['message_content']); ?>"
-                                                        data-image-url="<?php echo $row['image_url']; ?>" data-automation-list-id="<?php echo $row['automation_list_id']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#editTemplateModal">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger delete-template" 
-                                                        data-id="<?php echo $row['id']; ?>" data-template-name="<?php echo $row['template_name']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#deleteTemplateModal">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
+            <!-- FORMAT ROW-LIST TEMPLATE MENGGUNAKAN QUERY ASLI -->
+            <div class="mt-2 mb-5">
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <div class="row-list">
+                        
+                        <!-- Header Baris -->
+                        <div class="row-item py-2" style="border-bottom: 2px solid var(--ink); animation: none; opacity: 1; transform: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--ink-muted);">
+                            <div><input type="checkbox" id="selectAll" class="form-check-input" style="border-color: var(--ink-muted);"></div>
+                            <div>Nama & ID</div>
+                            <div>Automasi Terkait</div>
+                            <div>Preview Konten</div>
+                            <div>Akun Pengirim</div>
+                            <div class="text-end">Aksi</div>
                         </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">No message templates found.</div>
-                    <?php endif; ?>
-                </div>
+
+                        <?php 
+                        $delay = 0;
+                        while($row = mysqli_fetch_assoc($result)): 
+                        ?>
+                            <!-- Baris Data dengan Animasi Cascade -->
+                            <div class="row-item" style="animation-delay: <?php echo $delay; ?>ms">
+                                
+                                <!-- Kolom 1: Checkbox -->
+                                <div>
+                                    <input type="checkbox" class="form-check-input template-checkbox" value="<?php echo $row['id']; ?>" style="border-color: var(--ink-muted); cursor: pointer;">
+                                </div>
+                                
+                                <!-- Kolom 2: Nama Template & ID -->
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem; color: var(--ink);">
+                                        <?php echo htmlspecialchars($row['template_name']); ?>
+                                    </div>
+                                    <div class="font-mono text-muted" style="font-size: 0.75rem; margin-top: 4px;">
+                                        ID: TPL_<?php echo str_pad($row['id'], 5, '0', STR_PAD_LEFT); ?>
+                                    </div>
+                                </div>
+                                
+                                <!-- Kolom 3: Automasi Terkait (Jika ada) -->
+                                <div>
+                                    <?php if (!empty($row['automation_list_name'])): ?>
+                                        <span class="template-badge">
+                                            <?php echo htmlspecialchars($row['automation_list_name']); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="font-mono text-muted" style="border: 1px dashed var(--border-color); padding: 2px 6px; border-radius: 2px; font-size: 0.75rem;">NONE</span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <!-- Kolom 4: Preview Konten -->
+                                <div class="template-preview" title="<?php echo htmlspecialchars($row['message_content']); ?>">
+                                    "<?php echo htmlspecialchars(substr($row['message_content'], 0, 70)) . (strlen($row['message_content']) > 70 ? '...' : ''); ?>"
+                                </div>
+                                
+                                <!-- Kolom 5: Akun WA -->
+                                <div class="font-mono" style="font-size: 0.85rem; color: var(--ink);">
+                                    <?php echo htmlspecialchars($row['account_name']); ?>
+                                </div>
+                                
+                                <!-- Kolom 6: Aksi (View/Edit/Delete) -->
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary view-template" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.6rem;"
+                                            data-id="<?php echo $row['id']; ?>" 
+                                            data-template-name="<?php echo htmlspecialchars($row['template_name']); ?>"
+                                            data-message-content="<?php echo htmlspecialchars($row['message_content']); ?>"
+                                            data-bs-toggle="modal" data-bs-target="#viewTemplateModal" title="Lihat Penuh">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm" 
+                                            style="background: rgba(0, 56, 255, 0.05); color: var(--accent); border: 1px solid rgba(0, 56, 255, 0.1); border-radius: 4px; padding: 0.35rem 0.6rem;"
+                                            data-id="<?php echo $row['id']; ?>" 
+                                            data-whatsapp-number-id="<?php echo $row['whatsapp_number_id']; ?>"
+                                            data-template-name="<?php echo htmlspecialchars($row['template_name']); ?>" 
+                                            data-message-content="<?php echo htmlspecialchars($row['message_content']); ?>"
+                                            data-automation-list-id="<?php echo $row['automation_list_id'] ?? ''; ?>"
+                                            data-bs-toggle="modal" data-bs-target="#editTemplateModal" title="Edit Template">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-template" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.6rem;"
+                                            data-id="<?php echo $row['id']; ?>" 
+                                            data-template-name="<?php echo htmlspecialchars($row['template_name']); ?>"
+                                            data-bs-toggle="modal" data-bs-target="#deleteTemplateModal" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php 
+                        $delay += 40; 
+                        endwhile; 
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <!-- Empty State -->
+                    <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 4rem 1rem;">
+                        <i class="bi bi-file-earmark-break" style="font-size: 2.5rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                        <p class="mb-0 font-mono" style="font-size: 1rem; font-weight: 500;">Arsip template kosong.</p>
+                        <p class="font-mono text-muted mt-2" style="font-size: 0.85rem;">Klik "Buat Template Baru" untuk menyusun pesan standar Anda.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>

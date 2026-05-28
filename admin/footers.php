@@ -190,155 +190,153 @@ include('../includes/header.php');
         <?php include('../includes/sidebar.php'); ?>
         
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
-                <div class="d-flex align-items-center mb-2 mb-md-0">
-                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content utilitarian-page">
+            
+            <style>
+                .utilitarian-page .row-list {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .utilitarian-page .row-item {
+                    display: grid;
+                    grid-template-columns: 40px 2fr 3fr 1.5fr 100px auto;
+                    align-items: center;
+                    gap: 1rem;
+                    padding: 1.25rem 0.5rem;
+                    border-bottom: 1px solid var(--border-color);
+                    transition: background-color 200ms var(--ease-out);
+                    
+                    opacity: 0;
+                    transform: translateY(12px);
+                    animation: fadeInRow 400ms var(--ease-out) forwards;
+                }
+                @media (hover: hover) and (pointer: fine) {
+                    .utilitarian-page .row-item:hover {
+                        background-color: rgba(0, 56, 255, 0.02);
+                    }
+                }
+                .content-preview {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    font-size: 0.9rem;
+                    color: var(--ink-muted);
+                    font-style: italic;
+                    padding-right: 1rem;
+                }
+            </style>
+
+            <!-- HEADER EDITORIAL -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-end pt-4 pb-3 mb-4" style="border-bottom: 2px solid var(--ink);">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" style="border-radius: 4px;">
                         <i class="bi bi-list"></i>
                     </button>
-                    <h1 class="h2 mb-0">Footers</h1>
+                    <div>
+                        <h1 class="h2 mb-0" style="font-family: 'Clash Display', sans-serif; font-weight: 600;">Footer Modules</h1>
+                        <span class="font-mono text-muted" style="font-size: 0.85rem; display: block; margin-top: 5px;">MANAGE MESSAGE SIGNATURES</span>
+                    </div>
                 </div>
                 
-                <div class="d-flex gap-2 flex-wrap justify-content-start justify-content-md-end">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFooterModal">
-                        <i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Add Footer</span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFooterModal" style="border-radius: 4px; padding: 0.6rem 1.25rem;">
+                        <i class="bi bi-plus-lg me-1"></i> Buat Footer Baru
                     </button>
                 </div>
             </div>
+
+            <?php display_flash_message(); ?>
             
-            <?php if (mysqli_num_rows($accounts_result) == 0): ?>
-                <div class="alert alert-warning">
-                    <p class="mb-0">You need to add a WhatsApp account first before creating footers. <a href="whatsapp_accounts.php" class="alert-link">Add WhatsApp Account</a></p>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($errors)): ?>
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($update_errors)): ?>
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        <?php foreach ($update_errors as $error): ?>
-                            <li><?php echo $error; ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Filter Footers</h5>
-                </div>
-                <div class="card-body">
-                    <form method="get" action="" class="row g-3">
-                        <div class="col-md-3">
-                            <label for="account" class="form-label">WhatsApp Account</label>
-                            <select class="form-select" id="account" name="account">
-                                <option value="">All Accounts</option>
-                                <?php
-                                mysqli_data_seek($accounts_result, 0);
-                                while($account = mysqli_fetch_assoc($accounts_result)): 
-                                ?>
-                                    <option value="<?php echo $account['id']; ?>" <?php echo $filter_account == $account['id'] ? 'selected' : ''; ?>>
-                                        <?php echo $account['account_name']; ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
+            <div class="mt-2 mb-5">
+                <?php if (mysqli_num_rows($result) > 0): ?>
+                    <div class="row-list">
+                        
+                        <!-- Header Baris -->
+                        <div class="row-item py-2" style="border-bottom: 2px solid var(--ink); animation: none; opacity: 1; transform: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--ink-muted);">
+                            <div><input type="checkbox" id="selectAll" class="form-check-input" style="border-color: var(--ink-muted);"></div>
+                            <div>Nama Footer</div>
+                            <div>Preview Konten</div>
+                            <div>Akun Tertaut</div>
+                            <div>Status</div>
+                            <div class="text-end">Aksi</div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="">All Status</option>
-                                <option value="1" <?php echo $filter_status === '1' ? 'selected' : ''; ?>>Active</option>
-                                <option value="0" <?php echo $filter_status === '0' ? 'selected' : ''; ?>>Inactive</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="search" class="form-label">Search</label>
-                            <input type="text" class="form-control" id="search" name="search" placeholder="Search by name or content" value="<?php echo $search; ?>">
-                        </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <?php if (mysqli_num_rows($result) > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Footer Name</th>
-                                        <th>Content Preview</th>
-                                        <th>WhatsApp Account</th>
-                                        <th>Status</th>
-                                        <th width="150">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($row = mysqli_fetch_assoc($result)): ?>
-                                        <tr>
-                                            <td><?php echo $row['footer_name']; ?></td>
-                                            <td>
-                                                <?php 
-                                                // Show a preview of the footer content (first 50 characters)
-                                                $preview = $row['footer_content'];
-                                                echo strlen($preview) > 50 ? substr($preview, 0, 50) . '...' : $preview; 
-                                                ?>
-                                            </td>
-                                            <td><?php echo $row['account_name']; ?></td>
-                                            <td>
-                                                <?php if ($row['active']): ?>
-                                                    <span class="badge bg-success">Active</span>
-                                                <?php else: ?>
-                                                    <span class="badge bg-danger">Inactive</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-info view-footer" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-footer-name="<?php echo $row['footer_name']; ?>"
-                                                        data-footer-content="<?php echo htmlspecialchars($row['footer_content']); ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#viewFooterModal">
-                                                    <i class="bi bi-eye"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-primary edit-footer" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-whatsapp-number-id="<?php echo $row['whatsapp_number_id']; ?>"
-                                                        data-footer-name="<?php echo $row['footer_name']; ?>"
-                                                        data-footer-content="<?php echo htmlspecialchars($row['footer_content']); ?>"
-                                                        data-active="<?php echo $row['active']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#editFooterModal">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-danger delete-footer" 
-                                                        data-id="<?php echo $row['id']; ?>"
-                                                        data-footer-name="<?php echo $row['footer_name']; ?>"
-                                                        data-bs-toggle="modal" data-bs-target="#deleteFooterModal">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else: ?>
-                        <div class="alert alert-info mb-0">
-                            <p class="mb-0">No footers found. Click "Add New Footer" to create your first footer.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
+
+                        <?php 
+                        $delay = 0;
+                        while($row = mysqli_fetch_assoc($result)): 
+                        ?>
+                            <!-- Baris Data dengan Efek Cascade -->
+                            <div class="row-item" style="animation-delay: <?php echo $delay; ?>ms">
+                                
+                                <!-- Checkbox -->
+                                <div>
+                                    <input type="checkbox" class="form-check-input item-checkbox" value="<?php echo $row['id']; ?>" style="border-color: var(--ink-muted); cursor: pointer;">
+                                </div>
+                                
+                                <!-- Nama & ID -->
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.05rem; color: var(--ink);">
+                                        <?php echo htmlspecialchars($row['footer_name']); ?>
+                                    </div>
+                                    <div class="font-mono text-muted" style="font-size: 0.75rem; margin-top: 4px;">
+                                        ID: FTR_<?php echo str_pad($row['id'], 4, '0', STR_PAD_LEFT); ?>
+                                    </div>
+                                </div>
+                                
+                                <!-- Konten -->
+                                <div class="content-preview" title="<?php echo htmlspecialchars($row['footer_content']); ?>">
+                                    "<?php echo htmlspecialchars(substr($row['footer_content'], 0, 60)) . (strlen($row['footer_content']) > 60 ? '...' : ''); ?>"
+                                </div>
+                                
+                                <!-- Akun -->
+                                <div class="font-mono" style="font-size: 0.85rem; color: var(--ink);">
+                                    <?php echo htmlspecialchars($row['account_name']); ?>
+                                </div>
+                                
+                                <!-- Status -->
+                                <div>
+                                    <?php if ($row['active']): ?>
+                                        <span class="badge" style="background: #E8F5E9; color: #2E7D32; border-radius: 2px; font-family: 'Geist Mono', monospace; font-size: 0.65rem; letter-spacing: 0.05em; padding: 4px 6px;">ACTIVE</span>
+                                    <?php else: ?>
+                                        <span class="badge" style="background: transparent; color: var(--ink-muted); border: 1px dashed var(--border-color); border-radius: 2px; font-family: 'Geist Mono', monospace; font-size: 0.65rem; letter-spacing: 0.05em; padding: 4px 6px;">INACTIVE</span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <!-- Aksi -->
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button type="button" class="btn btn-sm" 
+                                            style="background: rgba(0, 56, 255, 0.05); color: var(--accent); border: 1px solid rgba(0, 56, 255, 0.1); border-radius: 4px; padding: 0.35rem 0.6rem; transition: transform 150ms ease;"
+                                            onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'"
+                                            data-id="<?php echo $row['id']; ?>" 
+                                            data-whatsapp-number-id="<?php echo $row['whatsapp_number_id']; ?>"
+                                            data-footer-name="<?php echo htmlspecialchars($row['footer_name']); ?>" 
+                                            data-footer-content="<?php echo htmlspecialchars($row['footer_content']); ?>"
+                                            data-active="<?php echo $row['active']; ?>"
+                                            data-bs-toggle="modal" data-bs-target="#editFooterModal">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-footer" 
+                                            style="border-radius: 4px; padding: 0.35rem 0.6rem; transition: transform 150ms ease;"
+                                            onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'"
+                                            data-id="<?php echo $row['id']; ?>" 
+                                            data-footer-name="<?php echo htmlspecialchars($row['footer_name']); ?>"
+                                            data-bs-toggle="modal" data-bs-target="#deleteFooterModal">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php 
+                        $delay += 40; 
+                        endwhile; 
+                        ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 4rem 1rem;">
+                        <i class="bi bi-card-text" style="font-size: 2.5rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                        <p class="mb-0 font-mono" style="font-size: 1rem; font-weight: 500;">Modul Footer masih kosong.</p>
+                        <p class="font-mono text-muted mt-2" style="font-size: 0.85rem;">Buat footer standar (seperti info kontak atau penafian) untuk disematkan di akhir pesan.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </main>
     </div>

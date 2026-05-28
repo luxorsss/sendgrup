@@ -16,72 +16,40 @@ require_once(__DIR__ . '/functions.php');
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <!-- Custom CSS -->
     <style>
-        /* --- Import Inter from Google Fonts --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        /* --- Tipografi Berkarakter --- */
+        @import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600&f[]=satoshi@400,500,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');
 
         /* --- Design Tokens based on DESIGN.md --- */
         :root {
-            /* Brand & Primary */
-            --colors-primary: #8a2be2; /* Notion Purple */
-            --colors-primary-pressed: #7822c9;
-            --colors-brand-navy: #0F172A;
-            --colors-link-blue: #0A85D1;
+            --bg-color: #F4F4F0;
+            --surface: #FFFFFF;
+            --ink: #0A0A0A;
+            --ink-muted: #555555;
+            --accent: #0038FF;
+            --accent-hover: #002BCC;
+            --border-color: rgba(10, 10, 10, 0.15);
             
-            /* Surface */
-            --colors-canvas: #FFFFFF;
-            --colors-surface: #F7F7F5;
-            --colors-surface-soft: #F9F9F8;
-            --colors-hairline: #E2E2E2;
-            --colors-hairline-strong: #D1D1D1;
-            
-            /* Card Tints */
-            --colors-card-tint-peach: #FFF0E5;
-            --colors-card-tint-rose: #FFE5E5;
-            --colors-card-tint-mint: #E5F2E5;
-            --colors-card-tint-lavender: #F0E5FF;
-            --colors-card-tint-sky: #E5F0FF;
-            --colors-card-tint-yellow: #FFFBE5;
-            --colors-card-tint-yellow-bold: #FFE500;
-            --colors-card-tint-cream: #F5F2F0;
-            
-            /* Text */
+            --colors-canvas: #F4F4F0;
+            --colors-surface: #FFFFFF;
+            --colors-ink: #0A0A0A;
             --colors-ink-deep: #000000;
-            --colors-ink: #37352F;
-            --colors-charcoal: #5A5A5A;
-            --colors-steel: #7A7A7A;
-            --colors-muted: #999999;
-            --colors-on-dark: #FFFFFF;
+            --colors-hairline: rgba(10, 10, 10, 0.15);
+            --colors-primary: #0038FF;
             
-            /* Spacing */
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
-            --spacing-md: 12px;
-            --spacing-lg: 16px;
-            --spacing-xl: 20px;
-            --spacing-xxl: 24px;
+            /* Emil's Easing Curves untuk animasi UI yang sempurna */
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
             
-            /* Shapes */
-            --rounded-xs: 4px;
-            --rounded-sm: 6px;
-            --rounded-md: 8px; /* Buttons, inputs */
-            --rounded-lg: 12px; /* Cards */
-            --rounded-full: 9999px; /* Badges, pill tabs */
+            --rounded-md: 4px; /* Sudut lebih tajam/utilitarian */
         }
-
-        /* --- Base Typography & Body --- */
+        
         body {
-            background-color: var(--colors-canvas);
-            color: var(--colors-ink);
-            font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Helvetica, sans-serif;
-            font-size: 16px;
-            line-height: 1.55;
-            background-image: none; /* Remove previous background gradient */
+            font-family: 'Satoshi', sans-serif; /* Menggunakan Satoshi, bukan Inter */
         }
-
-        h1, h2, h3, h4, h5, h6, .navbar-brand {
-            color: var(--colors-ink-deep);
+        
+        h1, h2, h3, h4, h5, .navbar-brand {
+            font-family: 'Clash Display', sans-serif;
             font-weight: 600;
-            letter-spacing: -0.5px;
         }
 
         /* --- Top Navigation --- */
@@ -208,13 +176,12 @@ require_once(__DIR__ . '/functions.php');
 
         /* --- Tombol Aksi --- */
         .btn {
-            border-radius: var(--rounded-md);
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 18px;
-            letter-spacing: 0;
-            transition: background-color 0.2s ease;
-            box-shadow: none;
+            transition: transform 160ms var(--ease-out), background-color 160ms ease;
+            will-change: transform;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
         }
         
         .btn-primary, .btn-brand-send {
@@ -304,6 +271,39 @@ require_once(__DIR__ . '/functions.php');
         .card-feature h4 {
             font-size: 22px;
             margin-bottom: var(--spacing-md);
+        }
+
+        /* --- ROW-LIST LAYOUT UTILITIES --- */
+        .row-list {
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+        }
+        .row-item {
+            display: grid;
+            grid-template-columns: 40px 2fr 1fr 3fr 1fr auto;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 200ms var(--ease-out);
+            
+            /* Persiapan Animasi Staggered */
+            opacity: 0;
+            transform: translateY(12px);
+            animation: fadeInRow 400ms var(--ease-out) forwards;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .row-item:hover {
+                background-color: rgba(0, 56, 255, 0.03); /* Highlight tipis saat disentuh mouse */
+            }
+        }
+        @keyframes fadeInRow {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .font-mono {
+            font-family: 'Geist Mono', monospace;
+            font-size: 0.85rem;
         }
     </style>
 </head>

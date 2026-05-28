@@ -244,24 +244,75 @@ include('../includes/header.php');
         <?php include('../includes/sidebar.php'); ?>
         
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-3">
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content utilitarian-form">
+            
+            <style>
+                .utilitarian-form .form-control,
+                .utilitarian-form .form-select {
+                    border-radius: 4px;
+                    border: 1px solid var(--border-color);
+                    padding: 0.85rem 1rem;
+                    font-family: 'Satoshi', sans-serif;
+                    background-color: transparent;
+                    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
+                }
+                .utilitarian-form .form-control:focus,
+                .utilitarian-form .form-select:focus {
+                    border-color: var(--ink);
+                    /* Solid shadow ala editorial/brutalist */
+                    box-shadow: 3px 3px 0px rgba(10,10,10,0.1); 
+                    outline: none;
+                }
+                .utilitarian-form .form-label {
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.5rem;
+                    color: var(--ink);
+                    text-transform: uppercase;
+                    letter-spacing: 0.03em;
+                    font-family: 'Geist Mono', monospace;
+                }
+                .utilitarian-form .form-check-input {
+                    border-color: var(--ink-muted);
+                    cursor: pointer;
+                }
+                .utilitarian-form .form-check-input:checked {
+                    background-color: var(--ink);
+                    border-color: var(--ink);
+                }
+                .utilitarian-form .form-check-label {
+                    cursor: pointer;
+                    user-select: none;
+                }
+                .section-divider {
+                    border-top: 2px solid var(--ink);
+                    margin: 2.5rem 0 1.5rem 0;
+                    padding-top: 1rem;
+                }
+            </style>
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-end pt-4 pb-3 mb-4" style="border-bottom: 2px solid var(--ink);">
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                    <button class="btn btn-outline-secondary d-md-none me-2" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" style="border-radius: 4px;">
                         <i class="bi bi-list"></i>
                     </button>
-                    <h1 class="h2 mb-0">Send Instant Message</h1>
+                    <div>
+                        <h1 class="h2 mb-0" style="font-family: 'Clash Display', sans-serif; font-weight: 600;">Compose Message</h1>
+                        <span class="font-mono text-muted" style="font-size: 0.85rem; display: block; margin-top: 5px;">INSTANT TRANSMISSION PROTOCOL</span>
+                    </div>
                 </div>
             </div>
             
             <?php if (mysqli_num_rows($accounts_result) == 0): ?>
-                <div class="alert alert-warning">
-                    <p class="mb-0">You need to add a WhatsApp account first before sending messages. <a href="whatsapp_accounts.php" class="alert-link">Add WhatsApp Account</a></p>
+                <div class="alert mt-3" style="border-radius: 4px; border: 1px dashed var(--border-color); background: transparent; color: var(--ink-muted); text-align: center; padding: 3rem 1rem;">
+                    <i class="bi bi-phone-vibrate" style="font-size: 2rem; display: block; margin-bottom: 1rem; color: var(--ink);"></i>
+                    <p class="mb-0 font-mono">Koneksi WhatsApp tidak ditemukan.</p>
+                    <a href="whatsapp_accounts.php" class="font-mono text-primary text-decoration-none" style="font-size: 0.85rem; font-weight: 600;">TAMBAHKAN AKUN SEKARANG &rarr;</a>
                 </div>
             <?php else: ?>
                 <?php if (!empty($errors)): ?>
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
+                    <div class="alert" style="background: #FFF1F0; border: 1px solid #FFCCC7; border-radius: 4px; color: #CF1322;">
+                        <ul class="mb-0 font-mono" style="font-size: 0.85rem;">
                             <?php foreach ($errors as $error): ?>
                                 <li><?php echo $error; ?></li>
                             <?php endforeach; ?>
@@ -269,111 +320,104 @@ include('../includes/header.php');
                     </div>
                 <?php endif; ?>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Compose Message</h5>
+                <form method="post" action="" id="instantMessageForm" style="max-width: 800px;">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-5 mb-3 mb-md-0">
+                            <label for="whatsapp_number_id" class="form-label"><i class="bi bi-broadcast me-2"></i>Pengirim (Sender)</label>
+                            <select class="form-select" id="whatsapp_number_id" name="whatsapp_number_id" required>
+                                <option value="">Pilih Akun WhatsApp...</option>
+                                <?php
+                                mysqli_data_seek($accounts_result, 0);
+                                while($account = mysqli_fetch_assoc($accounts_result)): 
+                                ?>
+                                    <option value="<?php echo $account['id']; ?>">
+                                        <?php echo htmlspecialchars($account['account_name']); ?>
+                                    </option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label for="group_selection" class="form-label"><i class="bi bi-people me-2"></i>Target Grup</label>
+                            <div id="group_container" class="p-3" style="border: 1px solid var(--border-color); border-radius: 4px; background: transparent; min-height: 52px; display: flex; align-items: center;">
+                                <p class="text-muted mb-0 font-mono" style="font-size: 0.85rem;">Pilih pengirim terlebih dahulu...</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <form method="post" action="" id="instantMessageForm">
-                            <div class="mb-3">
-                                <label for="whatsapp_number_id" class="form-label">WhatsApp Account</label>
-                                <select class="form-select" id="whatsapp_number_id" name="whatsapp_number_id" required>
-                                    <option value="">Select WhatsApp Account</option>
-                                    <?php
-                                    mysqli_data_seek($accounts_result, 0);
-                                    while($account = mysqli_fetch_assoc($accounts_result)): 
-                                    ?>
-                                        <option value="<?php echo $account['id']; ?>">
-                                            <?php echo $account['account_name']; ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="group_selection" class="form-label">WhatsApp Groups</label>
-                                <div id="group_container" class="border rounded p-3 bg-light">
-                                    <p class="text-center mb-0">Please select a WhatsApp account first</p>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="message_content" class="form-label">Message Content</label>
-                                <textarea class="form-control" id="message_content" name="message_content" rows="6" required placeholder="Enter your message here..."></textarea>
-                                <div class="form-text mt-2">
-                                    <strong>Formatting Tips:</strong><br>
-                                    - Use *asterisks* for <strong>bold text</strong><br>
-                                    - Use _underscores_ for <em>italic text</em><br>
-                                    - Use ~tildes~ for <del>strikethrough</del><br>
-                                    - Use ```three backticks``` for <code>monospace</code>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="image_url" class="form-label">Image URL (Optional)</label>
-                                <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
-                                <div class="form-text">Enter a direct URL to an image (JPG, PNG, etc.) to include with the message.</div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="include_promotion" name="include_promotion" value="1" checked>
-                                    <label class="form-check-label" for="include_promotion">
-                                        Include Promotion (if available for the group)
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="include_footer" name="include_footer" value="1" checked>
-                                    <label class="form-check-label" for="include_footer">
-                                        Include Footer (if available for the group)
-                                    </label>
-                                </div>
-                            </div>
-							
-							<!-- SCHEDULE OPTION -->
-							<div class="mb-3">
-								<div class="form-check">
-									<input class="form-check-input" type="checkbox" id="schedule_message" name="schedule_message" value="1">
-									<label class="form-check-label" for="schedule_message">
-										📅 Jadwalkan Pesan (Kirim Nanti)
-									</label>
-								</div>
-							</div>
 
-							<!-- SCHEDULE FIELDS (Awalnya tersembunyi) -->
-							<div id="schedule_fields" class="mb-3" style="display: none;">
-								<div class="card">
-									<div class="card-header bg-light">
-										<h6 class="mb-0">Jadwal Pengiriman</h6>
-									</div>
-									<div class="card-body">
-										<div class="row">
-											<div class="col-md-6">
-												<label for="schedule_date" class="form-label">Tanggal</label>
-												<input type="date" class="form-control" id="schedule_date" name="schedule_date" 
-													   min="<?php echo date('Y-m-d'); ?>">
-											</div>
-											<div class="col-md-6">
-												<label for="schedule_time" class="form-label">Waktu</label>
-												<input type="time" class="form-control" id="schedule_time" name="schedule_time">
-											</div>
-										</div>
-										<div class="form-text">Pilih tanggal dan waktu di masa depan untuk mengirim pesan</div>
-									</div>
-								</div>
-							</div>
+                    <div class="section-divider"></div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-end mb-2">
+                            <label for="message_content" class="form-label mb-0"><i class="bi bi-chat-text me-2"></i>Isi Pesan</label>
                             
-                            <div class="d-grid gap-2">
-								<button type="submit" name="send_message" class="btn btn-primary" id="submit_button">
-									<i class="bi bi-send"></i> Send Message Now
-								</button>
-							</div>
-                        </form>
+                            <div class="font-mono text-muted d-none d-sm-flex gap-3" style="font-size: 0.75rem;">
+                                <span>*<b>Tebal</b>*</span>
+                                <span>_<i>Miring</i>_</span>
+                                <span>~<del>Coret</del>~</span>
+                                <span>Ctrl+B / Ctrl+I</span>
+                            </div>
+                        </div>
+                        <textarea class="form-control" id="message_content" name="message_content" rows="8" required placeholder="Ketik pesan Anda di sini..."></textarea>
                     </div>
-                </div>
+                    
+                    <div class="mb-4">
+                        <label for="image_url" class="form-label"><i class="bi bi-image me-2"></i>Lampiran Gambar (Opsional)</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://domain.com/gambar.jpg">
+                        <div class="font-mono text-muted mt-2" style="font-size: 0.75rem;">Harus berupa URL langsung berakhiran .jpg, .png, dsb.</div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-2">
+                            <div class="form-check p-3" style="border: 1px solid var(--border-color); border-radius: 4px; transition: background 150ms ease;">
+                                <input class="form-check-input ms-1" type="checkbox" id="include_promotion" name="include_promotion" value="1" checked>
+                                <label class="form-check-label fw-bold ms-2" for="include_promotion">
+                                    Sisipkan Promosi
+                                </label>
+                                <div class="font-mono text-muted ms-4 ps-2 mt-1" style="font-size: 0.75rem;">Jika diatur untuk grup ini</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <div class="form-check p-3" style="border: 1px solid var(--border-color); border-radius: 4px; transition: background 150ms ease;">
+                                <input class="form-check-input ms-1" type="checkbox" id="include_footer" name="include_footer" value="1" checked>
+                                <label class="form-check-label fw-bold ms-2" for="include_footer">
+                                    Sisipkan Footer
+                                </label>
+                                <div class="font-mono text-muted ms-4 ps-2 mt-1" style="font-size: 0.75rem;">Signature / Penutup pesan</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-divider"></div>
+
+                    <div class="mb-4">
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="schedule_message" name="schedule_message" value="1">
+                            <label class="form-check-label fw-bold font-mono" for="schedule_message" style="color: var(--accent);">
+                                <i class="bi bi-clock-history me-1"></i> JADWALKAN UNTUK NANTI
+                            </label>
+                        </div>
+
+                        <div id="schedule_fields" class="p-3 mb-4" style="display: none; background: rgba(0, 56, 255, 0.03); border: 1px solid rgba(0, 56, 255, 0.2); border-radius: 4px;">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="schedule_date" class="form-label" style="color: var(--accent);">Tanggal Eksekusi</label>
+                                    <input type="date" class="form-control" id="schedule_date" name="schedule_date" min="<?php echo date('Y-m-d'); ?>" style="border-color: rgba(0, 56, 255, 0.3);">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="schedule_time" class="form-label" style="color: var(--accent);">Waktu Eksekusi</label>
+                                    <input type="time" class="form-control" id="schedule_time" name="schedule_time" style="border-color: rgba(0, 56, 255, 0.3);">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mb-5">
+                        <button type="submit" name="send_message" class="btn btn-primary" id="submit_button" style="padding: 1rem 2.5rem; font-size: 1.1rem;">
+                            KIRIM SEKARANG &rarr;
+                        </button>
+                    </div>
+                </form>
             <?php endif; ?>
         </main>
     </div>
