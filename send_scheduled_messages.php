@@ -104,7 +104,9 @@ if (mysqli_num_rows($result) > 0) {
             $promotions_content_text = getGroupPromotions($conn, $group_id);
             $footer_content_text = getGroupFooter($conn, $group_id);
             
-            $full_message = parse_spintax($full_message);
+            // PERBAIKAN DI SINI: Gunakan $message_content bukan $full_message
+            $full_message = parse_spintax($message_content); 
+            
             if (!empty($footer_content_text)) {
                 $full_message .= "\n\n" . $footer_content_text;
             }
