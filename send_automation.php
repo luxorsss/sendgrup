@@ -123,9 +123,9 @@ while ($schedule = mysqli_fetch_assoc($result_schedules)) {
         }
 
         // JEDA ACAK ANTI-BANNED WA (5 hingga 15 detik antar pengiriman)
-        $delay = rand(5, 15);
-        echo "      Menunggu jeda aman $delay detik...\n";
-        sleep($delay);
+        // $delay = rand(5, 15);
+        // echo "      Menunggu jeda aman $delay detik...\n";
+        // sleep($delay);
     }
 }
 echo "\n============================================\n";
