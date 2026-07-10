@@ -2,4 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/wegqxcgv/subdomains/app.galeridigital.my.id/sendgrup/
-    - /bin/cp -R * $DEPLOYPATH
+    - /usr/bin/rsync -av --exclude='.git' --exclude='.github' ./ $DEPLOYPATH
