@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/wegqxcgv/subdomains/app.galeridigital.my.id/sendgrup/
+    - /bin/cp -R * $DEPLOYPATH
