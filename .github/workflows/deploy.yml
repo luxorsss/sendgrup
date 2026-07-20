@@ -1,0 +1,21 @@
+name: Auto Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main # Ganti ke 'master' jika branch utamamu bernama master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/wegqxcgv/subdomains/app.galeridigital.my.id/sendgrup
+            git pull origin main
